@@ -1,36 +1,35 @@
 classdef crossCorrelation < associationMeasure
     methods
-        function res = measure(obj,x,y,n,max_lag, corrected)
-            res = zeros(2*max_lag+1,1);
-            for lag = -max_lag:max_lag
-                xc = x(max_lag+1:max_lag+1+n);
-                yc = y(lag+max_lag+1:lag+max_lag+1+n);
+        % Returns the maximum cross-correlation
+        function res = measure(obj, window, i, j)
+            cc = zeros(2*window.Max_lag+1,1);
+            for lag = -window.Max_lag:window.Max_lag
+                x = window.Data(:,i);
+                y = window.Data(:,j);
+                xc = x(window.Max_lag+1:window.Max_lag+1+n);
+                yc = y(lag+window.Max_lag+1:lag+window.Max_lag+1+n);
                 meani = mean(xc);
                 meanj = mean(yc);
                 sigi = std(xc);
                 sigj = std(yc);
                 frac = 1/(sigi*sigj*n);
                 cross = 0;
-                for t=1:n
+                for t=1:window.Length
                     cross = cross + ((xc(t)-meani)*(yc(t)-meanj));
                 end
-                res(lag+max_lag+1,1) = frac*cross;
+                cc(lag+window.Max_lag+1,1) = frac*cross;
             end
-            if corrected == true
-                corr = zeros(2*max_lag+1,1);
-                for lag=-max_lag:max_lag
-                    corr(lag+max_lag+1,1) = (1/2) * (res(lag+max_lag+1) - res(-lag+max_lag+1));
-                end
-                res = corr;
-            end
+            res = max(abs(cc));
         end
 
-        function res = FTmeasure(obj,x,y,n,max_lag)
-            cc = measure(obj,x,y,n,max_lag,false);
-            res = zeros(2*max_lag+1,1);    
-            for lag = -max_lag:max_lag
-                res(lag+max_lag+1,1) = (1/2)*log((1+cc(lag+max_lag+1,1))/(1-cc(lag+max_lag+1,1)));
+        function res = FTmeasure(obj,window,i,j)
+            cc = obj.measure(window,i,j);
+            FT = zeros(2*window.Max_lag+1,1);    
+            for lag = -window.Max_lag:window.Max_lag
+                FT(lag+window.Max_lag+1,1) = (1/2)*log((1+cc(lag+window.Max_lag+1,1))/(1-cc(lag+window.Max_lag+1,1)));
             end
+            sF = max(abs(FT));
+            res = sF/sqrt(std(FT));
         end
     end
 end

@@ -1,50 +1,86 @@
-
-% INPUT: file, asociation measure, threshold/stat test
-% OUTPUT: indicator
-
 clearvars; clc; close all;
-load Files/01/EEG.mat;
 
-%%%%%%%%%%%%%%%%%%
-% PRE PROCESSING %
-%%%%%%%%%%%%%%%%%%
+predict("Files/01/", 8, "cc", "treshold")
 
-chan = 19;
-points = 225250; % 225000 for file 05
-low_freq = 0.5;         
-high_freq = 30;
-fs = 250;
-ref = 8;
+% MAIN FUNCTION
+% Inputs: 
+%   - EEG_file: EEG of the patient for which the indicator is asked
+%       format: folder with 2 files: EEG.mat and Header.mat
+%               EEG with 24 channels
+%   - asociation measure: the choice of association measure between nodes
+%       can be: "cc", "corr_cc" or "wPLI"
+%       REM: put the best one by default
+%   - matrix: the choice of association matrix construction method
+% Output: 
+%   - indicator: number between 1 and 100 indicating the probability of 
+%       the patient to face epileptic seizure(s)
 
-eeg = EEGData(EEG, chan, points, low_freq, high_freq, fs, ref);
-eeg = eeg.preprocessing();
+function indicator = predict(EEG_folder, ref, assoc_measure, matrix_constr)
+    
+    % Creation of the eeg object
+    EEG_file = EEG_folder + "EEG.mat";
+    EEG_header = EEG_folder + "Header.mat";
+    
+    load(EEG_file);
+    load(EEG_header);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% NETWORK CONSTRUCTION and PARAMETERS EXTRACTION %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+    chan = size(EEG, 2) - 5; % have something more reusable ?
+    points = size(EEG, 1);
+    fs = Header.Fs;
+    eeg = EEGData(EEG, chan, points, fs, ref);
 
-length_window = 250;
-overlap = 125;
-max_lag = 50;
+    % Options
+    % By default: cross-correlation
+    if assoc_measure == 'corr_cc'
+        assoc = correctedCrossCorrelation();
+    elseif assoc_measure == 'wPLI'
+        assoc = wPLI();
+    else
+        assoc = crossCorrelation();
+    end
 
-wind = window(length_window, overlap, max_lag);
+    % By default: statistical test
+    s_test = 'true';
+    if matrix_constr == 'threshold'
+        s_test = false;
+    end
 
-cross = crossCorrelation;
-param_cross = eeg.EEG_parameters(eeg.Data, wind, cross, false);
-param_corr = eeg.EEG_parameters(eeg.Data, wind, cross, true);
+    %%%%%%%%%%%%%%%%%%
+    % PRE PROCESSING %
+    %%%%%%%%%%%%%%%%%%
 
-disp ("----- Cross correlation -----")
-disp(param_cross.Density)
-disp(param_cross.Clustering_coeff)
-disp(param_cross.Char_path_length)
-disp(param_cross.Size_larg_comp)
-disp(param_cross.Char_path_length_lc)
-disp(param_cross.Nb_ind_comp)
+    low_freq = 0.5;         
+    high_freq = 30;
+    eeg = eeg.preprocessing(low_freq, high_freq);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    % NETWORK CONSTRUCTION %
+    %%%%%%%%%%%%%%%%%%%%%%%%  
+    
+    % Windowing - Creation of the window object
+    length_window = 250;
+    overlap = 125;
+    max_lag = 50;
+    wind = window(length_window, overlap, max_lag);
+    eeg = eeg.init_parameters(wind);
+    c = 1;
 
-disp ("----- Corrected cross correlation -----")
-disp(param_corr.Density)
-disp(param_corr.Clustering_coeff)
-disp(param_corr.Char_path_length)
-disp(param_corr.Size_larg_comp)
-disp(param_corr.Char_path_length_lc)
-disp(param_corr.Nb_ind_comp)
+    for w=wind.Overlap:wind.Overlap:eeg.Points-(wind.Overlap+wind.Length)
+        wind = wind.network(data, w, assoc, s_test);
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%
+        % PARAMETERS EXTRACTION %
+        %%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % compute the network parameters of the window
+        wind = wind.parameters();
+        % keep track of the parameters of each window
+        eeg = eeg.WIND_parameters(wind, c);
+    end
+
+    % Average of the parameters on all windows
+    eeg = eeg.EEG_parameters();
+
+    indicator = 0;
+
+end

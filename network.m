@@ -15,82 +15,54 @@ classdef network
             obj.Nodes = nodes;
         end
 
-        function obj = construction(obj, measure, window, corrected)
-            assoc_measure = zeros(obj.Nodes);
-        
-            % REM: the matrix is not perfectly diagonal: can cut half of the computations ?
-            for i=1:obj.Nodes
-                for j=1:obj.Nodes
-                    assoc_measure(i,j) = max(measure.measure(window.Data(:,i),window.Data(:,j),window.Length,window.Max_lag, corrected));
-                end
-            end
-        
-            obj.Graph = threshold_proportional(assoc_measure, 0.2);
-            for i=1:obj.Nodes
-                for j=1:obj.Nodes
-                    if obj.Graph(i,j) > 0
-                        obj.Graph(i,j) = 1;
-                    end
-                    if obj.Graph(i,j) > 0
-                        obj.Graph(i,j) = 1;
+        function obj = construction(obj, window, measure, s_test)
+            matrix = zeros(obj.Nodes);
+
+            % Use a statistical test to generate the association matrix
+            if s_test == true
+                a = sqrt(2*log(window.Length));
+                b = a - (2*a)^(-1)*(log(log(window.Length))+log(4*pi));
+                p_values = zeros(obj.Nodes);
+                for i=1:obj.Nodes
+                    for j=i:obj.Nodes
+                        matrix(i,j) = measure.FTmeasure(window, i, j);
+                        p_values(i,j) = exp(-2*exp(-a*(matrix(i,j)-b)));
                     end
                 end
-            end 
-            obj = obj.parameters(false);
-        end
 
-        function obj = construction_ST(obj, measure, window)
-            FCC = zeros(2*window.Max_lag+1,1);
-            sF = zeros(obj.Nodes);
-            zF = zeros(obj.Nodes);
-            a = sqrt(2*log(window.Length));
-            b = a - (2*a)^(-1)*(log(log(window.Length))+log(4*pi));
-            p = zeros(obj.Nodes);
-
-            % REM: the matrix is not perfectly diagonal: can cut half of the computations ?
-            for i=1:obj.Nodes
-                for j=i:obj.Nodes
-                    FCC(:) = measure.FTmeasure(window.Data(:,i),window.Data(:,j),window.Length,window.Max_lag);
-                    sF(i,j) = max(abs(FCC));
-                    zF(i,j) = sF(i,j)/sqrt(std(FCC));
-                    p(i,j) = exp(-2*exp(-a*(zF(i,j)-b)));
-                end
-            end
-
-            tot = obj.Nodes*obj.Nodes;
-            m = (obj.Nodes*(obj.Nodes-1)/2)+18;
-            [sorted, ~] = sort(reshape(p.',1,[]));
-            sorted(1:tot-m) = [];
-            q = 0.05;
-            
-            for i=1:m
-                if sorted(i) > q*i/m
-                    if i == 1
-                        k = 1;
-                    else
+                tot = obj.Nodes*obj.Nodes;
+                m = (obj.Nodes*(obj.Nodes-1)/2)+18;
+                [sorted, ~] = sort(reshape(p.',1,[]));
+                sorted(1:tot-m) = [];
+                q = 0.05;
+                
+                for i=1:m
+                    if sorted(i) > q*i/m
                         k = i-1;
-                    end
-                    break
-                else
-                    continue
-                end
-            end
-
-            val = sorted(k);
-            obj.Graph = p;
-
-            for i=1:obj.Nodes
-                for j = i:obj.Nodes
-                    if p(i,j) > val
-                        obj.Graph(i,j) = 0;
+                        break
                     else
-                        obj.Graph(i,j) = 1;
-                        obj.Graph(j,i) = p(i,j);
+                        continue
                     end
                 end
+    
+                val = sorted(k);
+                obj.Graph = p;
+    
+                obj.Graph(obj.Graph>val)=0;
+                obj.Graph(obj.Graph<val)=1;
+            
+            % Use a threshold to generate the association matrix
+            else
+                for i=1:obj.Nodes
+                    for j=i+1:obj.Nodes
+                        matrix(i,j) = measure.measure(window, i, j);
+                    end
+                end
+                obj.Graph = threshold_proportional(matrix, 0.2);
+                obj.Graph(obj.Graph>0)=1;
             end
             
-            obj = obj.parameters(false);
+            obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
         end
 
         function obj = parameters(obj, component)
