@@ -45,8 +45,8 @@ classdef EEGData
             obj.Data = dat;
         end
 
-        function obj = init_parameters(window)
-            obj.Num_window = (obj.Points / window.Overlap) - 2;
+        function obj = init_parameters(obj, window)
+            obj.Num_window = (obj.Points / window.Overlap) - 3;
 
             obj.Density = zeros(1,obj.Num_window);
             obj.Clustering_coeff = zeros(1,obj.Num_window);
@@ -57,12 +57,12 @@ classdef EEGData
         end
 
         function obj = WIND_parameters(obj, window, counter)
-            obj.Density(1, counter) = window.Density; % Network density
-            obj.Clustering_coeff(1,counter) = window.Clustering_coeff; % Clustering coefficient
-            obj.Char_path_length(1,counter) = window.Char_path_length; % Characteristic path length
-            obj.Size_larg_comp(1,counter) = window.Size_larg_comp; % Size of the largest component
-            obj.Char_path_length_lc(1,counter) = window.Char_path_length_lc; % Characteristic path length of the largest component
-            obj.Nb_ind_comp(1,counter) = window.Nb_ind_comp; % Number of independent components
+            obj.Density(1, counter) = window.Density;
+            obj.Clustering_coeff(1,counter) = window.Clustering_coeff;
+            obj.Char_path_length(1,counter) = window.Char_path_length;
+            obj.Size_larg_comp(1,counter) = window.Size_larg_comp;
+            obj.Char_path_length_lc(1,counter) = window.Char_path_length_lc;
+            obj.Nb_ind_comp(1,counter) = window.Nb_ind_comp;
         end
 
         function obj = EEG_parameters(obj)
@@ -72,42 +72,6 @@ classdef EEGData
             obj.Av_size_larg_comp = mean(obj.Size_larg_comp, "all");
             obj.Av_char_path_length_lc = mean(obj.Char_path_length_lc, "all");
             obj.Av_nb_ind_comp = mean(obj.Nb_ind_comp, "all");
-
-            time = [750:500:9000];
-            disp(size(time))
-            figure();
-            subplot(2,2,1)
-            plot(time, obj.Density)
-            xlabel('Time (in ms)')
-            ylabel('Density')
-            subplot(3,2,2)
-            plot(time, obj.Clustering_coeff)
-            xlabel('Time (in ms)')
-            ylabel('Clustering coefficient')
-            subplot(3,2,3)
-            plot(time, obj.Char_path_length)
-            xlabel('Time (in ms)')
-            ylabel('Characteristic path length')
-            subplot(3,2,4)
-            plot(time, obj.Size_larg_comp)
-            xlabel('Time (in ms)')
-            ylabel('Size of the largest component')
-            subplot(3,2,5)
-            plot(time, obj.Char_path_length_lc)
-            xlabel('Time (in ms)')
-            ylabel('Characteristic path length of the largest component')
-            subplot(3,2,6)
-            plot(time, obj.Nb_ind_comp)
-            xlabel('Time (in ms)')
-            ylabel('Number of independent components')
-
-            disp ("----- Brain connectivity parameters -----")
-            disp(param.Density)
-            disp(param.Clustering_coeff)
-            disp(param.Char_path_length)
-            disp(param.Size_larg_comp)
-            disp(param.Char_path_length_lc)
-            disp(param.Nb_ind_comp)
         end
     end
 end

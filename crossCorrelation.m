@@ -6,13 +6,13 @@ classdef crossCorrelation < associationMeasure
             for lag = -window.Max_lag:window.Max_lag
                 x = window.Data(:,i);
                 y = window.Data(:,j);
-                xc = x(window.Max_lag+1:window.Max_lag+1+n);
-                yc = y(lag+window.Max_lag+1:lag+window.Max_lag+1+n);
+                xc = x(window.Max_lag+1:window.Max_lag+1+window.Length);
+                yc = y(lag+window.Max_lag+1:lag+window.Max_lag+1+window.Length);
                 meani = mean(xc);
                 meanj = mean(yc);
                 sigi = std(xc);
                 sigj = std(yc);
-                frac = 1/(sigi*sigj*n);
+                frac = 1/(sigi*sigj*window.Length);
                 cross = 0;
                 for t=1:window.Length
                     cross = cross + ((xc(t)-meani)*(yc(t)-meanj));

@@ -27,6 +27,12 @@ classdef window
             obj = obj.normalize();
             obj.Network = network(size(obj.Data, 2));
             obj.Network = obj.Network.construction(obj, assoc, s_test);
+
+            if w == 3500
+                figure();
+                [x,y] = adjacency_plot_und(obj.Network.Graph);  % call function
+                plot(x,y);  
+            end
         end
         
         function obj = normalize(obj)
@@ -39,6 +45,7 @@ classdef window
 
         function obj = parameters(obj)
             obj.Network = obj.Network.parameters(false);
+            obj.Density = obj.Network.Density; % Network density
             obj.Clustering_coeff = obj.Network.Clustering_coeff; % Clustering coefficient
             obj.Char_path_length  = obj.Network.Char_path_length; % Characteristic path length
             obj.Size_larg_comp = obj.Network.Size_larg_comp; % Size of the largest component

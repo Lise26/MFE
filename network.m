@@ -50,6 +50,7 @@ classdef network
     
                 obj.Graph(obj.Graph>val)=0;
                 obj.Graph(obj.Graph<val)=1;
+                obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
             
             % Use a threshold to generate the association matrix
             else
@@ -58,17 +59,17 @@ classdef network
                         matrix(i,j) = measure.measure(window, i, j);
                     end
                 end
+                obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
                 obj.Graph = threshold_proportional(matrix, 0.2);
                 obj.Graph(obj.Graph>0)=1;
             end
-            
-            obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
+
         end
 
         function obj = parameters(obj, component)
             % Density
             potential = obj.Nodes*(obj.Nodes-1);
-            actual = potential - sum(obj.Graph == 0, 'all');
+            actual = sum(obj.Graph == 1, 'all');
             obj.Density = actual/potential; 
 
             % Clustering coefficient (CC)
@@ -77,10 +78,8 @@ classdef network
             
             % Characteristic path length (CPL)
             % PROBLEM: Lengths between disconnected nodes are set to Inf: THIS WILL ALWAYS BE INF
-            % The distance matrix contains lengths of shortest paths between all pairs of nodes
-            dist = distance_bin(obj.Graph);
-            % The CPL is the average shortest path length in the network
-            obj.Char_path_length = mean(dist, "all");
+            dist_mat = distance_bin(obj.Graph);
+            obj.Char_path_length = charpath(dist_mat, 0, 0);
         
             % Size of the largest component
             % component: array where each node of the network is labeled with the component it belongs to
