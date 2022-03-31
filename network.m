@@ -24,32 +24,36 @@ classdef network
                 b = a - (2*a)^(-1)*(log(log(window.Length))+log(4*pi));
                 p_values = zeros(obj.Nodes);
                 for i=1:obj.Nodes
-                    for j=i:obj.Nodes
+                    for j=i+1:obj.Nodes
                         matrix(i,j) = measure.FTmeasure(window, i, j);
                         p_values(i,j) = exp(-2*exp(-a*(matrix(i,j)-b)));
                     end
                 end
 
                 tot = obj.Nodes*obj.Nodes;
-                m = (obj.Nodes*(obj.Nodes-1)/2)+18;
-                [sorted, ~] = sort(reshape(p.',1,[]));
+                m = (obj.Nodes*(obj.Nodes-1)/2);
+                [sorted, ~] = sort(reshape(p_values.',1,[]));
                 sorted(1:tot-m) = [];
                 q = 0.05;
+                % q = 0.1;
                 
                 for i=1:m
                     if sorted(i) > q*i/m
                         k = i-1;
                         break
                     else
+                        if i == m
+                            k = m;
+                        end
                         continue
                     end
                 end
     
                 val = sorted(k);
-                obj.Graph = p;
+                obj.Graph = p_values;
     
-                obj.Graph(obj.Graph>val)=0;
-                obj.Graph(obj.Graph<val)=1;
+                obj.Graph(obj.Graph<=val)=1;
+                obj.Graph(obj.Graph~=1)=0;
                 obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
             
             % Use a threshold to generate the association matrix

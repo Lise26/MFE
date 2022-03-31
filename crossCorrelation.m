@@ -1,7 +1,6 @@
 classdef crossCorrelation < associationMeasure
     methods
-        % Returns the maximum cross-correlation
-        function res = measure(obj, window, i, j)
+        function obj = cross_correlation(obj, window, i, j)
             cc = zeros(2*window.Max_lag+1,1);
             for lag = -window.Max_lag:window.Max_lag
                 x = window.Data(:,i);
@@ -19,14 +18,20 @@ classdef crossCorrelation < associationMeasure
                 end
                 cc(lag+window.Max_lag+1,1) = frac*cross;
             end
-            res = max(abs(cc));
+            obj.Value = cc;
+        end
+
+        % Returns the maximum cross-correlation
+        function res = measure(obj, window, i, j)
+            cc = obj.cross_correlation(window, i, j);
+            res = max(abs(cc.Value));
         end
 
         function res = FTmeasure(obj,window,i,j)
-            cc = obj.measure(window,i,j);
+            cc = obj.cross_correlation(window, i, j);
             FT = zeros(2*window.Max_lag+1,1);    
             for lag = -window.Max_lag:window.Max_lag
-                FT(lag+window.Max_lag+1,1) = (1/2)*log((1+cc(lag+window.Max_lag+1,1))/(1-cc(lag+window.Max_lag+1,1)));
+                FT(lag+window.Max_lag+1,1) = (1/2)*log((1+cc.Value(lag+window.Max_lag+1,1))/(1-cc.Value(lag+window.Max_lag+1,1)));
             end
             sF = max(abs(FT));
             res = sF/sqrt(std(FT));
