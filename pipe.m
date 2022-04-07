@@ -2,140 +2,104 @@ clearvars; clc; close all;
 
 nb_patients = 40;
 
-results = zeros(nb_patients, 1799);
-param = EEGData.empty(nb_patients,0);
-c = 1;
-
-for i=1:nb_patients
-% for i=[1, 2, 21, 22]
-    if i < 10
-        file_name = "Files/0" + i + "/";
+for j=10:5:50
+    param = EEGData.empty(nb_patients,0);
+    
+    for i=1:nb_patients
+        if i < 10
+            file_name = "Files/0" + i + "/";
+        else
+            file_name = "Files/" + i + "/";
+        end
+    
+        param(i) = predict(file_name, 8, "cc", "threshold");
+    end
+    
+    density_ep = zeros(nb_patients, 1);
+    cluster_ep = zeros(nb_patients, 1);
+    charpath_ep = zeros(nb_patients, 1);
+    largcomp_ep = zeros(nb_patients, 1);
+    charpathlc_ep = zeros(nb_patients, 1);
+    indcomp_ep = zeros(nb_patients, 1);
+    
+    % Vectors of parameters for epilpetic patients
+    for p=1:20
+        density_ep(p) = param(p).Av_density;
+        cluster_ep(p) = param(p).Av_clustering_coeff;
+        charpath_ep(p) = param(p).Av_char_path_length;
+        largcomp_ep(p) = param(p).Av_size_larg_comp;
+        charpathlc_ep(p) = param(p).Av_char_path_length_lc;
+        indcomp_ep(p) = param(p).Av_nb_ind_comp;
+    end
+    
+    density_h = zeros(nb_patients, 1);
+    cluster_h = zeros(nb_patients, 1);
+    charpath_h = zeros(nb_patients, 1);
+    largcomp_h = zeros(nb_patients, 1);
+    charpathlc_h = zeros(nb_patients, 1);
+    indcomp_h = zeros(nb_patients, 1);
+    
+    % Vectors of parameters for healthy patients
+    for p=21:40
+        density_h(p) = param(p).Av_density;
+        cluster_h(p) = param(p).Av_clustering_coeff;
+        charpath_h(p) = param(p).Av_char_path_length;
+        largcomp_h(p) = param(p).Av_size_larg_comp;
+        charpathlc_h(p) = param(p).Av_char_path_length_lc;
+        indcomp_h(p) = param(p).Av_nb_ind_comp;
+    end
+    
+    disp("DENSITY")
+    h = ttest2(density_ep,density_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
     else
-        file_name = "Files/" + i + "/";
+        disp("From epileptic and healthy come from different distributions")
+    end
+    disp("CLUSTERING COEFFICIENT")
+    h = ttest2(cluster_ep,cluster_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
+    else
+        disp("From epileptic and healthy come from different distributions")
+    end
+    disp("CHAR PATH LENGTH")
+    h = ttest2(charpath_ep,charpath_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
+    else
+        disp("From epileptic and healthy come from different distributions")
+    end
+    disp("SIZE OF LC")
+    h = ttest2(largcomp_ep,largcomp_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
+    else
+        disp("From epileptic and healthy come from different distributions")
+    end
+    disp("CHAR PATH LENGTH OF LC")
+    h = ttest2(charpathlc_ep,charpathlc_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
+    else
+        disp("From epileptic and healthy come from different distributions")
+    end
+    disp("NUMBER OF INDEPENDENT COMPONENTS")
+    h = ttest2(indcomp_ep,indcomp_h);
+    if h == 0
+        disp("From epileptic and healthy come from the same distribution")
+    else
+        disp("From epileptic and healthy come from different distributions")
     end
 
-    param(i) = predict(file_name, 8, "cc", "threshold");
-    %results(c, :) = par(1).Density;
-    %c = c + 1;
-end
-
-density_ep = zeros(nb_patients, 1);
-cluster_ep = zeros(nb_patients, 1);
-charpath_ep = zeros(nb_patients, 1);
-largcomp_ep = zeros(nb_patients, 1);
-charpathlc_ep = zeros(nb_patients, 1);
-indcomp_ep = zeros(nb_patients, 1);
-
-% Vectors of parameters for epilpetic patients
-for i=1:20
-    density_ep(i) = param(i).Av_density;
-    cluster_ep(i) = param(i).Av_clustering_coeff;
-    charpath_ep(i) = param(i).Av_char_path_length;
-    largcomp_ep(i) = param(i).Av_size_larg_comp;
-    charpathlc_ep(i) = param(i).Av_char_path_length_lc;
-    indcomp_ep(i) = param(i).Av_nb_ind_comp;
-end
-
-density_h = zeros(nb_patients, 1);
-cluster_h = zeros(nb_patients, 1);
-charpath_h = zeros(nb_patients, 1);
-largcomp_h = zeros(nb_patients, 1);
-charpathlc_h = zeros(nb_patients, 1);
-indcomp_h = zeros(nb_patients, 1);
-
-% Vectors of parameters for healthy patients
-for i=21:40
-    density_h(i) = param(i).Av_density;
-    cluster_h(i) = param(i).Av_clustering_coeff;
-    charpath_h(i) = param(i).Av_char_path_length;
-    largcomp_h(i) = param(i).Av_size_larg_comp;
-    charpathlc_h(i) = param(i).Av_char_path_length_lc;
-    indcomp_h(i) = param(i).Av_nb_ind_comp;
-end
-
-
-disp("DENSITY")
-h = ttest2(density_ep,density_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
-end
-disp("CLUSTERING COEFFICIENT")
-h = ttest2(cluster_ep,cluster_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
-end
-disp("CHAR PATH LENGTH")
-h = ttest2(charpath_ep,charpath_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
-end
-disp("SIZE OF LC")
-h = ttest2(largcomp_ep,larg_comp_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
-end
-disp("CHAR PATH LENGTH OF LC")
-h = ttest2(charpathlc_ep,charpathlc_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
-end
-disp("NUMBER OF INDEPENDENT COMPONENTS")
-h = ttest2(indcomp_ep,indcomp_h);
-if h == 0
-    disp("From epileptic and healthy come from the same distribution")
-else
-    disp("From epileptic and healthy come from different distributions")
+    if j == 10
+        out = param;
+    else
+        out = horzcat(out, param);
+    end
 end
 
 %{
-disp("DENSITY")
-h = ttest2(results(1,:),results(2,:));
-if h == 0
-    disp("From 1 and 2 come from the same distribution")
-else
-    disp("From 1 and 2 come from different distributions")
-end
-h = ttest2(results(1,:),results(3,:));
-if h == 0
-    disp("From 1 and 21 come from the same distribution")
-else
-    disp("From 1 and 21 come from different distributions")
-end
-h = ttest2(results(1,:),results(4,:));
-if h == 0
-    disp("From 1 and 22 come from the same distribution")
-else
-    disp("From 1 and 22 come from different distributions")
-end
-h = ttest2(results(2,:),results(3,:));
-if h == 0
-    disp("From 2 and 21 come from the same distribution")
-else
-    disp("From 2 and 21 come from different distributions")
-end
-h = ttest2(results(2,:),results(4,:));
-if h == 0
-    disp("From 2 and 22 come from the same distribution")
-else
-    disp("From 2 and 22 come from different distributions")
-end
-h = ttest2(results(3,:),results(4,:));
-if h == 0
-    disp("From 21 and 22 come from the same distribution")
-else
-    disp("From 21 and 22 come from different distributions")
-end
-
 figure();
 plot(results(1,:))
 hold on
@@ -229,18 +193,5 @@ function eeg = predict(EEG_folder, ref, assoc_measure, matrix_constr)
 
     % Average of the parameters on all windows
     eeg = eeg.EEG_parameters();
-
-    disp ("----- Brain connectivity parameters -----")
-    disp(eeg.Av_density)
-    disp(eeg.Av_clustering_coeff)
-    disp(eeg.Av_char_path_length)
-    disp(eeg.Av_size_larg_comp)
-    disp(eeg.Av_char_path_length_lc)
-    disp(eeg.Av_nb_ind_comp)
-
-    % av = [eeg.Av_density, eeg.Av_clustering_coeff, eeg.Av_char_path_length, eeg.Av_size_larg_comp, eeg.Av_char_path_length_lc, eeg.Av_nb_ind_comp];
-    % params = [eeg.Density, eeg.Clustering_coeff, eeg.Char_path_length, eeg.Size_larg_comp, eeg.Char_path_length_lc, eeg.Nb_ind_comp];
-
-    % save('params', params)
 
 end
