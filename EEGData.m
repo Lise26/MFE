@@ -13,6 +13,8 @@ classdef EEGData
         Size_larg_comp
         Char_path_length_lc
         Nb_ind_comp
+        Degree
+        Small_world
 
         Av_density {mustBeNumeric}
         Av_clustering_coeff {mustBeNumeric}
@@ -20,6 +22,8 @@ classdef EEGData
         Av_size_larg_comp {mustBeNumeric}
         Av_char_path_length_lc {mustBeNumeric}
         Av_nb_ind_comp {mustBeNumeric}
+        Av_degree {mustBeNumeric}
+        Av_small_world {mustBeNumeric}
     end
 
     methods
@@ -54,6 +58,8 @@ classdef EEGData
             obj.Size_larg_comp = zeros(1,obj.Num_window);
             obj.Char_path_length_lc = zeros(1,obj.Num_window);
             obj.Nb_ind_comp = zeros(1,obj.Num_window);
+            obj.Degree = zeros(1,obj.Num_window);
+            obj.Small_world = zeros(1,obj.Num_window);
         end
 
         function obj = WIND_parameters(obj, window, counter)
@@ -63,6 +69,8 @@ classdef EEGData
             obj.Size_larg_comp(1,counter) = window.Size_larg_comp;
             obj.Char_path_length_lc(1,counter) = window.Char_path_length_lc;
             obj.Nb_ind_comp(1,counter) = window.Nb_ind_comp;
+            obj.Degree(1,counter) = window.Degree;
+            obj.Small_world(1,counter) = window.Clustering_coeff/window.Char_path_length;
         end
 
         function obj = EEG_parameters(obj)
@@ -72,6 +80,8 @@ classdef EEGData
             obj.Av_size_larg_comp = mean(obj.Size_larg_comp, "all");
             obj.Av_char_path_length_lc = mean(obj.Char_path_length_lc, "all");
             obj.Av_nb_ind_comp = mean(obj.Nb_ind_comp, "all");
+            obj.Av_degree = mean(obj.Degree, "all");
+            obj.Av_small_world = obj.Av_clustering_coeff/obj.Av_char_path_length;
         end
     end
 end

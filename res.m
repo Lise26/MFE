@@ -1,118 +1,43 @@
 clearvars; clc; close all;
 
-nb_patients = 40;
+file = "Files/40/"; 
+param = predict(file, 8, "cc", "stat");
 
-for j=10:5:50
-    param = EEGData.empty(nb_patients,0);
-    
-    for i=1:nb_patients
-        if i < 10
-            file_name = "Files/0" + i + "/";
-        else
-            file_name = "Files/" + i + "/";
-        end
-    
-        param(i) = predict(file_name, 8, "cc", "threshold");
-    end
-    
-    density_ep = zeros(nb_patients, 1);
-    cluster_ep = zeros(nb_patients, 1);
-    charpath_ep = zeros(nb_patients, 1);
-    largcomp_ep = zeros(nb_patients, 1);
-    charpathlc_ep = zeros(nb_patients, 1);
-    indcomp_ep = zeros(nb_patients, 1);
-    
-    % Vectors of parameters for epilpetic patients
-    for p=1:20
-        density_ep(p) = param(p).Av_density;
-        cluster_ep(p) = param(p).Av_clustering_coeff;
-        charpath_ep(p) = param(p).Av_char_path_length;
-        largcomp_ep(p) = param(p).Av_size_larg_comp;
-        charpathlc_ep(p) = param(p).Av_char_path_length_lc;
-        indcomp_ep(p) = param(p).Av_nb_ind_comp;
-    end
-    
-    density_h = zeros(nb_patients, 1);
-    cluster_h = zeros(nb_patients, 1);
-    charpath_h = zeros(nb_patients, 1);
-    largcomp_h = zeros(nb_patients, 1);
-    charpathlc_h = zeros(nb_patients, 1);
-    indcomp_h = zeros(nb_patients, 1);
-    
-    % Vectors of parameters for healthy patients
-    for p=21:40
-        density_h(p) = param(p).Av_density;
-        cluster_h(p) = param(p).Av_clustering_coeff;
-        charpath_h(p) = param(p).Av_char_path_length;
-        largcomp_h(p) = param(p).Av_size_larg_comp;
-        charpathlc_h(p) = param(p).Av_char_path_length_lc;
-        indcomp_h(p) = param(p).Av_nb_ind_comp;
-    end
-    
-    disp("DENSITY")
-    h = ttest2(density_ep,density_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-    disp("CLUSTERING COEFFICIENT")
-    h = ttest2(cluster_ep,cluster_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-    disp("CHAR PATH LENGTH")
-    h = ttest2(charpath_ep,charpath_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-    disp("SIZE OF LC")
-    h = ttest2(largcomp_ep,largcomp_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-    disp("CHAR PATH LENGTH OF LC")
-    h = ttest2(charpathlc_ep,charpathlc_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-    disp("NUMBER OF INDEPENDENT COMPONENTS")
-    h = ttest2(indcomp_ep,indcomp_h);
-    if h == 0
-        disp("From epileptic and healthy come from the same distribution")
-    else
-        disp("From epileptic and healthy come from different distributions")
-    end
-
-    if j == 10
-        out = param;
-    else
-        out = horzcat(out, param);
-    end
-end
-
-%{
 figure();
-plot(results(1,:))
-hold on
-plot(results(2,:))
-hold on
-plot(results(3,:))
-hold on
-plot(results(4,:))
-xlabel('Time (in ms)')
-title('Clustering coefficients')
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
-%}
+subplot(6,1,1)
+plot(param.Density)
+title("Network Density")
 
+subplot(6,1,2)
+plot(param.Clustering_coeff)
+title("Mean Clustering Coefficient")
+
+subplot(6,1,3)
+plot(param.Char_path_length)
+title("Characteristic Path Length")
+
+subplot(6,1,4)
+plot(param.Size_larg_comp)
+title("Size of the Largest Component")
+
+subplot(6,1,5)
+plot(param.Char_path_length_lc)
+title("Characteristic Path Length of the Largest Component")
+
+subplot(6,1,6)
+plot(param.Nb_ind_comp)
+title("Number of components")
+
+set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+
+disp(param.Av_density)
+disp(param.Av_clustering_coeff)
+disp(param.Av_char_path_length)
+disp(param.Av_size_larg_comp)
+disp(param.Av_char_path_length_lc)
+disp(param.Av_nb_ind_comp)
+disp(param.Av_degree)
+disp(param.Small_world)  
 
 % MAIN FUNCTION
 % Inputs: 
@@ -178,7 +103,7 @@ function eeg = predict(EEG_folder, ref, assoc_measure, matrix_constr)
     c = 1;
 
     for w=wind.Length-wind.Overlap:wind.Overlap:eeg.Points-(wind.Overlap+wind.Length)
-        wind = wind.network(eeg.Data, w, assoc, s_test);
+        wind = wind.network(eeg.Data, w, assoc, s_test, false);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % PARAMETERS EXTRACTION %

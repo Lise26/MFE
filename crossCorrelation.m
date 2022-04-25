@@ -27,14 +27,31 @@ classdef crossCorrelation < associationMeasure
             res = max(abs(cc.Value));
         end
 
-        function res = FTmeasure(obj,window,i,j)
+        function FT = FTmeasure(obj,window,i,j)
             cc = obj.cross_correlation(window, i, j);
             FT = zeros(2*window.Max_lag+1,1);    
             for lag = -window.Max_lag:window.Max_lag
                 FT(lag+window.Max_lag+1,1) = (1/2)*log((1+cc.Value(lag+window.Max_lag+1,1))/(1-cc.Value(lag+window.Max_lag+1,1)));
             end
-            sF = max(abs(FT));
-            res = sF/sqrt(std(FT));
         end
+
+        function zF = test_stat(obj, window, i, j)
+            FT = obj.FTmeasure(window, i, j);
+            [sF, index] = max(abs(FT));
+            %{
+            index = index - window.Max_lag - 1;
+            frac = 1/(window.Max_lag-index);
+            var = 0;
+            FTii = obj.FTmeasure(window, i, i);
+            FTjj = obj.FTmeasure(window, j, j);
+            for i=-window.Max_lag:window.Max_lag
+                var = var + (FTii(i+window.Max_lag+1)*FTjj(i+window.Max_lag+1));
+            end
+            var = frac*var;
+            zF = sF/sqrt(var);
+            %}
+            zF = sF/std(FT);
+        end
+
     end
 end
