@@ -133,11 +133,11 @@ classdef EEGData
         %   eeg object - with associated network parameters
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        function obj = process_data(obj, assoc)
+        function obj = process_data(obj, assoc, window_size)
             % STEP 1: PRE PROCESSING
             low_freq = 1;         
             high_freq = 30;
-            length_window = 250;
+            length_window = window_size;
             overlap = 125;
             [eeg, wind] = obj.preprocessing(low_freq, high_freq, length_window, overlap);
 

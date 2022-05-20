@@ -28,9 +28,14 @@ classdef network
             obj.Graph = threshold_proportional(obj.Graph, val);
             
             % Display network
-            ijw = adj2edgeL(triu(obj.Graph));        
+            netw = zeros(19);
+            netw(1:7,1:7) = obj.Graph(1:7,1:7);
+            netw(1:7,9:19) = obj.Graph(1:7,8:18);
+            netw(9:19,9:19) = obj.Graph(8:18,8:18);
+            netw = (netw+netw');
+            ijw = adj2edgeL(triu(netw));        
             figure();
-            f_PlotEEG_BrainNetwork(19, ijw, 'w_intact');
+            f_PlotEEG_BrainNetwork(19, ijw, 'w_unity');
 
             obj.Graph(obj.Graph>0)=1;
         end
@@ -39,10 +44,10 @@ classdef network
             obj.Edges = assoc.matrix(window,obj.Nodes);
         end
 
-        function obj = adjecency_stat_test(obj)
+        function obj = adjacency_stat_test(obj,n, q)
             p_values = zeros(obj.Nodes);
-            a = sqrt(2*log(window.Length));
-            b = a - (2*a)^(-1)*(log(log(window.Length))+log(4*pi));
+            a = sqrt(2*log(n));
+            b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
             for i=1:obj.Nodes
                 for j=i+1:obj.Nodes
                     p_values(i,j) = exp(-2*exp(-a*(obj.Edges(i,j)-b)));
@@ -52,7 +57,6 @@ classdef network
             m = obj.Nodes*(obj.Nodes-1)/2;
             [sorted, ~] = sort(reshape(p_values.',1,[]));
             sorted(1:tot-m) = [];
-            q = 0.000000000005;   % q = 0.1; % q = 0.25;
             for i=1:m
                 if sorted(i) > (q/m)*i
                     k = i-1;
@@ -66,11 +70,25 @@ classdef network
             if k == 0
                 k = 1;
             end
+            disp(k)
             val = sorted(k);
-            %disp("Confidence in the network (number of false positives - percentage)")
-            %disp(q*k)
+            disp("Confidence in the network (number of false positives - percentage)")
+            disp(q*k)
             obj.Graph = p_values;
             obj.Graph(obj.Graph>val)=0;
+
+            % Display network
+            disp(obj.Graph)
+            %netw = zeros(19);
+            %netw(1:7,1:7) = obj.Graph(1:7,1:7);
+            %netw(1:7,9:19) = obj.Graph(1:7,8:18);
+            %netw(9:19,9:19) = obj.Graph(8:18,8:18);
+            %netw = (netw+netw');
+            ijw = adj2edgeL(triu(obj.Graph)); 
+            disp(ijw)
+            figure();
+            f_PlotEEG_BrainNetwork(19, ijw, 'w_intact');
+
             % obj.Graph(obj.Graph>0.01)=0;
             obj.Graph(obj.Graph~=0)=1;
             obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
