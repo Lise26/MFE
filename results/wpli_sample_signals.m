@@ -18,9 +18,10 @@ wind = window(Fs, 0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WPLI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 measure = wPLI();
+measure.Num_window = floor(length(x)/(wind.Length-wind.Overlap)) - 1;
 res = zeros(5,length(phi_t)); 
 for p=1:length(phi_t)
-    res(:,p) = measure.measure(wind, x, y(p,:));
+    res(:,p) = measure.measure(wind, x.', y(p,:).');
 end
 
 phi_t=-phi_t ; 
