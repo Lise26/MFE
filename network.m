@@ -18,9 +18,8 @@ classdef network
             obj.Nodes = nodes;
         end
 
-        function obj = wpli_edges(obj, eeg, window)
-            assoc = wPLI();
-            obj.Edges = assoc.matrix(eeg.Data,window);
+        function obj = edges(obj, measure, eeg, window)
+            obj.Edges = measure.matrix(eeg,window);
         end
 
         function obj = adjacency_threshold(obj, val)
@@ -32,7 +31,6 @@ classdef network
             netw(1:7,1:7) = obj.Graph(1:7,1:7);
             netw(1:7,9:19) = obj.Graph(1:7,8:18);
             netw(9:19,9:19) = obj.Graph(8:18,8:18);
-            netw = (netw+netw');
             ijw = adj2edgeL(triu(netw));        
             figure();
             f_PlotEEG_BrainNetwork(19, ijw, 'w_unity');
@@ -40,12 +38,10 @@ classdef network
             obj.Graph(obj.Graph>0)=1;
         end
 
-        function obj = cc_corr_edges(obj, assoc, window)
-            obj.Edges = assoc.matrix(window,obj.Nodes);
-        end
-
         function obj = adjacency_stat_test(obj,n, q)
             p_values = zeros(obj.Nodes);
+            disp(min(obj.Edges, [], "all"))
+            disp(max(obj.Edges, [], "all"))
             a = sqrt(2*log(n));
             b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
             for i=1:obj.Nodes
@@ -77,20 +73,38 @@ classdef network
             obj.Graph = p_values;
             obj.Graph(obj.Graph>val)=0;
 
-            % Display network
-            disp(obj.Graph)
-            %netw = zeros(19);
-            %netw(1:7,1:7) = obj.Graph(1:7,1:7);
-            %netw(1:7,9:19) = obj.Graph(1:7,8:18);
-            %netw(9:19,9:19) = obj.Graph(8:18,8:18);
-            %netw = (netw+netw');
-            ijw = adj2edgeL(triu(obj.Graph)); 
-            disp(ijw)
+            obj.Graph(obj.Graph~=0)=1;
+            disp(sum(obj.Graph, 'all'))
+            obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
+        end
+
+        function obj = adjacency_p_val(obj,n,t)
+            p_values = zeros(obj.Nodes);
+            %disp(min(obj.Edges, [], "all"))
+            %disp(max(obj.Edges, [], "all"))
+            a = sqrt(2*log(n));
+            b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
+            for i=1:obj.Nodes
+                for j=i+1:obj.Nodes
+                    p_values(i,j) = exp(-2*exp(-a*(obj.Edges(i,j)-b)));
+                end
+            end
+            obj.Graph = p_values;
+            obj.Graph(obj.Graph>t)=0;
+
+            %{
+             % Display network
+            netw = zeros(19);
+            netw(1:7,1:7) = obj.Graph(1:7,1:7);
+            netw(1:7,9:19) = obj.Graph(1:7,8:18);
+            netw(9:19,9:19) = obj.Graph(8:18,8:18);
+            ijw = adj2edgeL(triu(netw));        
             figure();
             f_PlotEEG_BrainNetwork(19, ijw, 'w_intact');
+            %}
 
-            % obj.Graph(obj.Graph>0.01)=0;
             obj.Graph(obj.Graph~=0)=1;
+            disp(sum(obj.Graph, 'all'))
             obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
         end
 
@@ -118,6 +132,18 @@ classdef network
 
             % Small world property
             obj.Small_world = small_world_propensity(obj.Graph, 'bin');
+            disp("Comparing SWs")
+            disp(obj.Small_world)
+
+            % get its basic properties
+            n = size(obj.Graph,1);  % number of nodes
+            k = sum(obj.Graph);  % degree distribution of undirected network
+            K = mean(k); % mean degree of network
+            [expectedC,expectedL] = ER_Expected_L_C(K,n);  % L_rand and C_rand
+            [S_ws,~,~] = small_world_ness(obj.Graph,expectedL,expectedC,1);  % Using WS clustering coefficient
+
+            sm = S_ws;
+            disp(sm)
             
             % Characteristic path length of the largest component
             % Build the network of the largest component only

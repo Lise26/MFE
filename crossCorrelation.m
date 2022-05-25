@@ -1,10 +1,8 @@
 classdef crossCorrelation < associationMeasure
     methods
-        function obj = measure(obj, window, i, j)
+        function obj = association(obj, window, x, y)
             cc = zeros(2*obj.Max_lag+1,1);
             for lag = -obj.Max_lag:obj.Max_lag
-                x = window.Data(:,i);
-                y = window.Data(:,j);
                 xc = x(obj.Max_lag+1:obj.Max_lag+1+window.Length);
                 yc = y(lag+obj.Max_lag+1:lag+obj.Max_lag+1+window.Length);
                 meani = mean(xc);

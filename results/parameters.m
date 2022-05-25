@@ -1,14 +1,21 @@
 clearvars; clc; close all;
 
 nb_patients = 40;
-nb_params = 7;
+nb_params = 6;
 window_size = 2500;
+if window_size == 250
+    nb_windows = 1799;
+else
+    nb_windows = 92;
+end
 
-for m = ["cc", "corr_cc", "wPLI"]
+%for m = ["cc", "corr_cc", "wPLI"]
+for window_size = 2500 
+    m = "corr_cc";
     params_ep = zeros(nb_patients/2, nb_params);
     params_h = zeros(nb_patients/2, nb_params);
-    w_params_ep = zeros(nb_patients/2, nb_params, 1799);
-    w_params_h = zeros(nb_patients/2, nb_params, 1799);
+    w_params_ep = zeros(nb_patients/2, nb_params, nb_windows);
+    w_params_h = zeros(nb_patients/2, nb_params, nb_windows);
     
     for i=1:nb_patients
         if i < 10
@@ -22,31 +29,27 @@ for m = ["cc", "corr_cc", "wPLI"]
         if m == "cc" || m == "corr_cc"
             % Parameters values in function of the windows
             figure();
-            subplot(7,1,1)
-            plot(param.Density)
-            xlabel("Windows")
-            title("Network Density across windows")
-            subplot(7,1,2)
+            subplot(6,1,1)
             plot(param.Clustering_coeff)
             title("Mean Clustering Coefficient across windows")
             xlabel("Windows")
-            subplot(7,1,3)
+            subplot(6,1,2)
             plot(param.Char_path_length)
             title("Characteristic Path Length across windows")
             xlabel("Windows")
-            subplot(7,1,4)
+            subplot(6,1,3)
             plot(param.Size_larg_comp)
             title("Size of the Largest Component across windows")
             xlabel("Windows")
-            subplot(7,1,5)
+            subplot(6,1,4)
             plot(param.Char_path_length_lc)
             title("Characteristic Path Length of the Largest Component across windows")
             xlabel("Windows")
-            subplot(7,1,6)
+            subplot(6,1,5)
             plot(param.Nb_ind_comp)
             title("Number of Independent Components across windows")
             xlabel("Windows")
-            subplot(7,1,7)
+            subplot(6,1,6)
             plot(param.Small_world)
             title("Small-world Configuration across windows")
             xlabel("Windows")
@@ -56,14 +59,16 @@ for m = ["cc", "corr_cc", "wPLI"]
             disp(size(param.Density))
         
             % Patients that have longer recordings are cut for display purposes
-            if i == 19 || i == 20
-                param.Density(end-1: end) = [];
-                param.Clustering_coeff(end-1: end) = [];
-                param.Char_path_length(end-1: end) = [];
-                param.Size_larg_comp(end-1: end) = [];
-                param.Char_path_length_lc(end-1: end) = [];
-                param.Nb_ind_comp(end-1: end) = [];
-                param.Small_world(end-1: end) = [];
+            if window_size == 250
+                if i == 19 || i == 20
+                    param.Density(end-1: end) = [];
+                    param.Clustering_coeff(end-1: end) = [];
+                    param.Char_path_length(end-1: end) = [];
+                    param.Size_larg_comp(end-1: end) = [];
+                    param.Char_path_length_lc(end-1: end) = [];
+                    param.Nb_ind_comp(end-1: end) = [];
+                    param.Small_world(end-1: end) = [];
+                end
             end
         end
     
@@ -79,76 +84,69 @@ for m = ["cc", "corr_cc", "wPLI"]
     
         % Keep the patient's parameters in memory
         if i < 21
-           params_ep(i,:) = [param.Av_density, param.Av_clustering_coeff, ...
+           params_ep(i,:) = [param.Av_clustering_coeff, ...
                param.Av_char_path_length, param.Av_size_larg_comp, ...
                param.Av_char_path_length_lc, param.Av_nb_ind_comp, ...
                param.Av_small_world];
     
            if m == "cc" || m == "corr_cc"
-               nb_windows = size(param.Density,2);
-               disp("Second check")
-               disp(size(param.Density,2))
-               w_params_ep(i,:,1:nb_windows) = [param.Density; ...
-                   param.Clustering_coeff; param.Char_path_length, ...
-                   param.Size_larg_comp, param.Char_path_length_lc, ...
-                   param.Nb_ind_comp, param.Small_world];
+               w_params_ep(i,:,1:nb_windows) = [param.Clustering_coeff; ...
+                   param.Char_path_length; param.Size_larg_comp; ...
+                   param.Char_path_length_lc; param.Nb_ind_comp; ...
+                   param.Small_world];
            end
         else
-            params_h(i,:) = [param.Av_density, param.Av_clustering_coeff, ...
+            params_h(i-20,:) = [param.Av_clustering_coeff, ...
                param.Av_char_path_length, param.Av_size_larg_comp, ...
                param.Av_char_path_length_lc, param.Av_nb_ind_comp, ...
                param.Av_small_world];
             
             if m == "cc" || m == "corr_cc"
-                w_params_h(i,:,:) = [param.Density; param.Clustering_coeff; ...
-                   param.Char_path_length, param.Size_larg_comp, ...
-                   param.Char_path_length_lc, param.Nb_ind_comp, param.Small_world];
+                w_params_h(i-20,:,:) = [param.Clustering_coeff; ...
+                   param.Char_path_length; param.Size_larg_comp; ...
+                   param.Char_path_length_lc; param.Nb_ind_comp; param.Small_world];
             end
         end
     end  
     
     outcome = {'Epileptic', 'Healthy'};
-    density = horzcat(params_ep(:,1), params_h(:,1));
-    cluster = horzcat(params_ep(:,2), params_h(:,2));
-    char = horzcat(params_ep(:,3), params_h(:,3));
-    sizlc = horzcat(params_ep(:,4), params_h(:,4));
-    charlc = horzcat(params_ep(:,5), params_h(:,5));
-    nbcomp = horzcat(params_ep(:,6), params_h(:,6));
-    small_world = horzcat(params_ep(:,7), params_h(:,7));
+    disp(size(params_ep()))
+    disp(size(params_h()))
+    cluster = horzcat(params_ep(:,1), params_h(:,1));
+    char = horzcat(params_ep(:,2), params_h(:,2));
+    sizlc = horzcat(params_ep(:,3), params_h(:,3));
+    charlc = horzcat(params_ep(:,4), params_h(:,4));
+    nbcomp = horzcat(params_ep(:,5), params_h(:,5));
+    small_world = horzcat(params_ep(:,6), params_h(:,6));
     
     x = 1:2;
     figure();
-    subplot(4,2,1)
-    plot(x, density, '*')
-    title("Network Density")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    xlim([0 3])
-    subplot(4,2,2)
+    subplot(3,2,1)
     plot(x, cluster, "x")
     title("Mean Clustering Coefficient")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     xlim([0 3])
-    subplot(4,2,3)
+    subplot(3,2,2)
     plot(x,char,'*')
     title("Characteristic Path Length")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     xlim([0 3])
-    subplot(4,2,4)
+    subplot(3,2,3)
     plot(x,sizlc,'*')
     title("Size of the Largest Component")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     xlim([0 3])
-    subplot(4,2,5)
+    subplot(3,2,4)
     plot(x,charlc,'*')
     title("Characteristic Path Length of the Largest Component")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     xlim([0 3])
-    subplot(4,2,6)
+    subplot(3,2,5)
     plot(x,nbcomp,'*')
     title("Number of components")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     xlim([0 3])
-    subplot(4,2,7)
+    subplot(3,2,6)
     plot(x,small_world,'*')
     title("Small-world configuration")
     set(gca,'XTick',1:2,'XTickLabel',outcome)
@@ -168,86 +166,70 @@ for m = ["cc", "corr_cc", "wPLI"]
             vec_Wtest = zeros(40,2);
             vec_w(1:20,1) = params_ep(:,i);
             vec_w(21:40,1) = params_h(:,i);
-            vec_w(1:20,2) = ones(20,i);
-            vec_w(21:40,2) = 2.*ones(20,i);
+            vec_w(1:20,2) = ones(20,1);
+            vec_w(21:40,2) = 2.*ones(20,1);
             Wtest(vec_w);
         end
     end
     
-    figure();
-    subplot(4,2,1)
-    boxplot(density)
-    ylabel('Network Density')
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,2)
+    figure(43);
+    subplot(3,2,1)
     boxplot(cluster)
     ylabel('Mean Clustering Coefficient')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,3)
+    subplot(3,2,2)
     boxplot(char)
     ylabel('Characteristic Path Length')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,4)
+    subplot(3,2,3)
     boxplot(sizlc)
     ylabel('Size of the Largest Component')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,5)
+    subplot(3,2,4)
     boxplot(charlc)
     ylabel('Characteristic Path Length of the Largest Component')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,6)
+    subplot(3,2,5)
     boxplot(nbcomp)
     ylabel('Number of Components')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
-    subplot(4,2,7)
+    subplot(3,2,6)
     boxplot(small_world)
     ylabel('Small-world configuration')
     set(gca,'XTick',1:2,'XTickLabel',outcome)
     set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
-    if m == "cc" || m == "corr_cc"
-        options.color_line = [236 112  22]./255;
-        options.color_area = [243 169 114]./255;
-        if ~isfield(options,'handle'); options.handle=figure(1);end 
-        if ~isfield(options,'alpha'); options.alpha = 0.5; end 
-        if ~isfield(options,'line_width'); options.line_width = 2; end 
-        if ~isfield(options,'error'); options.error = 'std'; end
-        
+    if m == "cc" || m == "corr_cc"        
         figure();
-        subplot(4,2,1)
-        plot_areaerrorbar(density_mat_ep);
+        subplot(3,2,1)
+        plot_areaerrorbar(squeeze(w_params_ep(:,1,:)));
         hold on;
-        plot_areaerrorbar(density_mat_h, options);
-        title("Network Density")
-        subplot(4,2,2)
-        plot_areaerrorbar(cluster_mat_ep);
-        hold on;
-        plot_areaerrorbar(cluster_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,1,:)), "orange");
         title("Mean Clustering Coefficient")
-        subplot(4,2,3)
-        plot_areaerrorbar(path_mat_ep);
+        subplot(3,2,2)
+        plot_areaerrorbar(squeeze(w_params_ep(:,2,:)));
         hold on;
-        plot_areaerrorbar(path_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,2,:)), "orange");
         title("Characteristic Path Length")
-        subplot(4,2,4)
-        plot_areaerrorbar(size_mat_ep);
+        subplot(3,2,3)
+        plot_areaerrorbar(squeeze(w_params_ep(:,3,:)));
         hold on;
-        plot_areaerrorbar(size_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,3,:)), "orange");
         title("Size of the Largest Component")
-        subplot(4,2,5)
-        plot_areaerrorbar(pathlc_mat_ep);
+        subplot(3,2,4)
+        plot_areaerrorbar(squeeze(w_params_ep(:,4,:)));
         hold on;
-        plot_areaerrorbar(pathlc_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,4,:)), "orange");
         title("Characteristic Path Length of the Largest Component")
-        subplot(4,2,6)
-        plot_areaerrorbar(nbcomp_mat_ep);
+        subplot(3,2,5)
+        plot_areaerrorbar(squeeze(w_params_ep(:,5,:)));
         hold on;
-        plot_areaerrorbar(nbcomp_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,5,:)), "orange");
         title("Number of components")
-        subplot(4,2,7)
-        plot_areaerrorbar(small_mat_ep);
+        subplot(3,2,6)
+        plot_areaerrorbar(squeeze(w_params_ep(:,6,:)));
         hold on;
-        plot_areaerrorbar(small_mat_h, options);
+        plot_areaerrorbar(squeeze(w_params_h(:,6,:)), "orange");
         title("Small-world configuration")
         set(gcf, 'units','normalized','outerposition',[0 0 1 1])
     end

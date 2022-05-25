@@ -2,9 +2,6 @@ classdef window
     properties
         Length {mustBeNumeric}
         Overlap {mustBeNumeric}
-        
-        Data
-        Network
     end
     
     methods

@@ -58,15 +58,14 @@ set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 % Creation of a window containing the sample signals
 wind = window(n, 0);
 dat = horzcat(x1.',y1.',x2.',y2.',x3.',y3.',x4.',y4.');
-wind.Data = dat;
 
 %%%%%%%%%%%%%%%%%%%%%%%% CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%%%%%%
 % Computation of the cross-correlation
 cross = crossCorrelation();
-cross_corr_dat1 = cross.measure(wind,1,2);
-cross_corr_dat3 = cross.measure(wind,5,6);
-cross_corr_dat2 = cross.measure(wind,3,4);
-cross_corr_dat4 = cross.measure(wind,7,8);
+cross_corr_dat1 = cross.association(wind,dat(:,1),dat(:,2));
+cross_corr_dat3 = cross.association(wind,dat(:,5),dat(:,6));
+cross_corr_dat2 = cross.association(wind,dat(:,3),dat(:,4));
+cross_corr_dat4 = cross.association(wind,dat(:,7),dat(:,8));
 
 lag = -cross.Max_lag:cross.Max_lag;
 figure;
@@ -89,10 +88,10 @@ title('Cross-correlation of random signals')
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
 % Computation of the Fisher Transform of the cross-correlation
-cross_corr_dat1 = cross.FTmeasure(wind,1,2);
-cross_corr_dat3 = cross.FTmeasure(wind,5,6);
-cross_corr_dat2 = cross.FTmeasure(wind,3,4);
-cross_corr_dat4 = cross.FTmeasure(wind,7,8);
+cross_corr_dat1 = cross.FTmeasure(wind,dat(:,1),dat(:,2));
+cross_corr_dat3 = cross.FTmeasure(wind,dat(:,5),dat(:,6));
+cross_corr_dat2 = cross.FTmeasure(wind,dat(:,3),dat(:,4));
+cross_corr_dat4 = cross.FTmeasure(wind,dat(:,7),dat(:,8));
 
 lag = -cross.Max_lag:cross.Max_lag;
 figure;
@@ -118,10 +117,10 @@ set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
 % Computation of the corrected cross-correlation
 corr = correctedCrossCorrelation();
-corr_cross_corr_dat1 = corr.measure(wind,1,2);
-corr_cross_corr_dat2 = corr.measure(wind,3,4);
-corr_cross_corr_dat3 = corr.measure(wind,5,6);
-corr_cross_corr_dat4 = corr.measure(wind,7,8);
+corr_cross_corr_dat1 = corr.association(wind,dat(:,1),dat(:,2));
+corr_cross_corr_dat2 = corr.association(wind,dat(:,3),dat(:,4));
+corr_cross_corr_dat3 = corr.association(wind,dat(:,5),dat(:,6));
+corr_cross_corr_dat4 = corr.association(wind,dat(:,7),dat(:,8));
 
 lag = 1:cross.Max_lag;
 figure;
@@ -144,10 +143,10 @@ title('Corrected cross-correlation of random signals')
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
 % Computation of the Fisher Transform of the corrected cross-correlation
-cross_corr_dat1 = corr.FTmeasure(wind,1,2);
-cross_corr_dat2 = corr.FTmeasure(wind,3,4);
-cross_corr_dat3 = corr.FTmeasure(wind,5,6);
-cross_corr_dat4 = corr.FTmeasure(wind,7,8);
+cross_corr_dat1 = corr.FTmeasure(wind,dat(:,1),dat(:,2));
+cross_corr_dat2 = corr.FTmeasure(wind,dat(:,3),dat(:,4));
+cross_corr_dat3 = corr.FTmeasure(wind,dat(:,5),dat(:,6));
+cross_corr_dat4 = corr.FTmeasure(wind,dat(:,7),dat(:,8));
 
 lag = 1:cross.Max_lag;
 figure;

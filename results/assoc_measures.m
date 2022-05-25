@@ -7,6 +7,8 @@ low_freq = 1;
 high_freq = 30;
 length_window = 250;
 overlap = 125;
+reref = true;
+mast = true;
 
 % Results
 nets = network.empty(3,0);
@@ -16,23 +18,20 @@ for j=["cc", "corr_cc", "wPLI"]
     eeg = EEGData(patient, ref);
     
     % Pre-processing
-    [eeg, wind] = eeg.preprocessing(low_freq, high_freq, length_window, overlap);
+    [eeg, wind] = eeg.preprocessing(low_freq, high_freq, length_window, overlap, reref, mast);
     
     % Network nodes
     net = network(eeg.Channels-2);
 
     % Network edges
     if j == "wPLI"
-        eeg = eeg.rereferencing(true, false);
         net = net.wpli_edges(eeg, wind);
     
     else
         if j == "corr_cc"
             measure = correctedCrossCorrelation();
-            eeg = eeg.rereferencing(true, false);
         else
             measure = crossCorrelation();
-            eeg = eeg.rereferencing(true, true);
         end
         matrix = zeros(eeg.Channels, eeg.Channels, eeg.Num_window);
         n = 1;
