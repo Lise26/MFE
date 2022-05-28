@@ -141,29 +141,3 @@ plot(lag, corr_cross_corr_dat4.Value)
 ylabel('Corrected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of random signals')
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
-
-% Computation of the Fisher Transform of the corrected cross-correlation
-cross_corr_dat1 = corr.FTmeasure(wind,dat(:,1),dat(:,2));
-cross_corr_dat2 = corr.FTmeasure(wind,dat(:,3),dat(:,4));
-cross_corr_dat3 = corr.FTmeasure(wind,dat(:,5),dat(:,6));
-cross_corr_dat4 = corr.FTmeasure(wind,dat(:,7),dat(:,8));
-
-lag = 1:cross.Max_lag;
-figure;
-subplot(411)
-plot(lag, cross_corr_dat1)
-ylabel('Fisher Transform'); xlabel('Lag (s)')
-title('Fisher Transform of the corrected cross-correlation for in-phase signals')
-subplot(412)
-plot(lag, cross_corr_dat3)
-ylabel('Fisher Transform'); xlabel('Lag (s)')
-title('Fisher Transform of the corrected cross-correlation for dephased signals')
-subplot(413)
-plot(lag, cross_corr_dat2)
-ylabel('Fisher Transform'); xlabel('Lag (s)')
-title('Fisher Transform of the corrected cross-correlation for opposite-phase signals')
-subplot(414)
-plot(lag, cross_corr_dat4)
-ylabel('Fisher Transform'); xlabel('Lag (s)')
-title('Fisher Transform of the corrected cross-correlation for random signals')
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])

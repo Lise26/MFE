@@ -16,7 +16,11 @@ classdef EEGData
             load(EEG_file);
             load(EEG_header);
         
-            obj.Channels = size(EEG, 2)-3; % Remove ECG, RSO, LIO channels
+            obj.Channels = size(EEG, 2)-3; 
+            % Remove ECG, RSO and LIO that are not EEG channels
+                % ECG = electrocardiogramme
+                % RSO and LIO = electro oculogramme (right superior and
+                % left inferior)
             obj.Points = size(EEG, 1);
             obj.Sample_frequency = Header.Fs;
             obj.Reference = ref;
@@ -42,6 +46,7 @@ classdef EEGData
          
             if reref == true
                 disp("reref")
+                disp(obj.Points)
                 for p=1:obj.Points
                     if mastoids == true
                         % to the average of mastoids
@@ -84,8 +89,9 @@ classdef EEGData
             high_freq = 30;
             length_window = window_size;
             overlap = 125;
+            reref = true;
             mast = true;
-            [obj, wind] = obj.preprocessing(low_freq, high_freq, length_window, overlap, mast);
+            [obj, wind] = obj.preprocessing(low_freq, high_freq, length_window, overlap, reref, mast);
 
             % STEP 2: NETWORK NODES
             obj.Network = network(obj.Channels-2);
@@ -99,13 +105,13 @@ classdef EEGData
             end
             
             % STEP 3: NETWORK EDGES
-            obj.Network = obj.Network.edges(measure,eeg,wind);
+            obj.Network = obj.Network.edges(measure,obj,wind);
 
             % STEP 4: ADJACENCY MATRIX
             if assoc == "wPLI"  
-                obj.Network = obj.Network.adjacency_threshold(0.25);
+                obj.Network = obj.Network.adjacency_threshold(t);
             else
-                obj.Network = obj.Network.adjacency_stat_thres(wind.Length,t);
+                obj.Network = obj.Network.adjacency_p_val(101, 0.05);
             end
 
             % STEP 5: PARAMETERS
