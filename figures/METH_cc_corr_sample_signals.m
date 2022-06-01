@@ -2,8 +2,8 @@ clearvars; clc; close all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% SAMPLE SIGNALS %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Creation of sample signals
-n = 250;
-f=1/n;
+Fs = 250;
+f=1/Fs;
 t=0:f:2;
 
 % In phase
@@ -56,7 +56,7 @@ title('Random signals');
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
 % Creation of a window containing the sample signals
-wind = window(n, 0);
+wind = window(Fs, 0);
 dat = horzcat(x1.',y1.',x2.',y2.',x3.',y3.',x4.',y4.');
 
 %%%%%%%%%%%%%%%%%%%%%%%% CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%%%%%%

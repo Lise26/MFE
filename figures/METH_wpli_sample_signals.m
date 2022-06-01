@@ -4,7 +4,7 @@ clearvars; clc; close all;
 % Creation of sample signals
 Fs = 250;                   
 Ts = 1/Fs;                   
-L=7500; %~30sec => 900 cycles
+L = 7500; %~30sec => 900 cycles
 t = (0:L-1)*Ts; 
 
 % fixed phase difference between the two signals
@@ -25,7 +25,7 @@ for p=1:length(phi_t)
 end
 
 phi_t=-phi_t ; 
-figure('Name','wpli') ; 
+figure('Name','wpli'); 
 plot(phi_t,squeeze(res(4,:)),'-blue','LineWidth',1.5);
 set(gca,'xlim',[-pi() pi()],'xtick',[-pi():pi()/4:pi()],'xticklabel', ...
  {'-\pi' '-3\pi/4' '-\pi/2' '-\pi/4' '0' '\pi/4' '\pi/2' '3\pi/4' '\pi'}); 

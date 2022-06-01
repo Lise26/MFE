@@ -9,8 +9,9 @@ else
     nb_windows = 92;
 end
 
-for m = ["cc", "corr_cc", "wPLI"]
-    
+for m = "wPLI"
+    measure = wPLI();
+%for m = ["cc", "corr_cc", "wPLI"]
     nets1 = network.empty(0,40);
     nets2 = network.empty(0,40);
     nets3 = network.empty(0,40);
@@ -22,6 +23,7 @@ for m = ["cc", "corr_cc", "wPLI"]
     w_params_h = zeros(nb_patients/2, nb_params, nb_windows);
     
     for i=1:nb_patients
+        fprintf("-------  Patient n° %d -------\n", i);
         if i < 10
             file = "Files/0" + i + "/"; 
         else
@@ -42,7 +44,6 @@ for m = ["cc", "corr_cc", "wPLI"]
         eeg.Network = eeg.Network.edges(measure,eeg,wind);
     
         it = 1;
-        fprintf("------- Parameters for patient n° %d\n", i);
         for t=0.2:0.05:0.35
             eeg.Network = eeg.Network.adjacency_threshold(t);
             eeg.Network = eeg.Network.parameters(false);

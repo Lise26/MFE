@@ -1,4 +1,6 @@
-% Code coming from Ghita Ait Ouhmane
+% Code coming from Ghita Ait Ouhmane's Master Thesis
+% Ait Ouhmane, Ghita. 2022. “Assessing consciousness at the Intensive Care
+% Unit (ICU)." Master s thesis, Université Libre de Bruxelles.
 
 classdef wPLI < associationMeasure
    methods
@@ -13,6 +15,7 @@ classdef wPLI < associationMeasure
             %Correct format for this implementation
             x = x.';
             y = y.';
+            
             %Epoching 
             x_w = zeros(obj.Num_window,window.Length); 
             y_w = zeros(obj.Num_window,window.Length);

@@ -1,3 +1,5 @@
+% EEGData class
+
 classdef EEGData
     properties
         Data
@@ -16,16 +18,16 @@ classdef EEGData
             load(EEG_file);
             load(EEG_header);
         
+            obj.Points = size(EEG, 1);
             obj.Channels = size(EEG, 2)-3; 
             % Remove ECG, RSO and LIO that are not EEG channels
                 % ECG = electrocardiogramme
                 % RSO and LIO = electro oculogramme (right superior and left inferior)
-            obj.Points = size(EEG, 1);
             obj.Sample_frequency = Header.Fs;
-            obj.Reference = ref;
             obj.Data = EEG(:,1:obj.Channels);
 
             % Delete the reference
+            obj.Reference = ref;
             obj.Data(:,obj.Reference) = [];
             obj.Channels = obj.Channels - 1;
         end
@@ -66,7 +68,7 @@ classdef EEGData
             obj.Data = obj.Data(:,1:18);
         end
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % PROCESS_DATA quantifies the brain connectivity of a given patient
         % It starts with the EEG data of the patient and ends with network
         % parameters quantifying its brain connectivity by going through
@@ -82,7 +84,7 @@ classdef EEGData
         %
         % OUTPUT: 
         %   eeg object - with associated network parameters
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function obj = process_data(obj, assoc, window_size, t)
             % STEP 1: PRE PROCESSING
             low_freq = 1;         
@@ -94,7 +96,7 @@ classdef EEGData
             [obj, wind] = obj.preprocessing(low_freq, high_freq, length_window, overlap, reref, mast);
 
             % STEP 2: NETWORK NODES
-            obj.Network = network(obj.Channels-2);
+            obj.Network = network(obj.Channels);
 
             if assoc == "wPLI"
                 measure = wPLI();

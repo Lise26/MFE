@@ -1,3 +1,5 @@
+% Window class
+
 classdef window
     properties
         Length {mustBeNumeric}
