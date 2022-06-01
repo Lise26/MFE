@@ -1,3 +1,5 @@
+clearvars; clc; close all;
+
 nb_patients = 40;
 nb_params = 6;
 window_size = 250;
@@ -7,14 +9,7 @@ else
     nb_windows = 92;
 end
 
-for m = ["cc", "corr_cc"]
-    if m == "corr_cc"
-        measure = correctedCrossCorrelation();
-    elseif m == "wPLI"
-        measure = wPLI();
-    else
-        measure = crossCorrelation();
-    end
+for m = ["cc", "corr_cc", "wPLI"]
     
     nets1 = network.empty(0,40);
     nets2 = network.empty(0,40);
@@ -71,16 +66,7 @@ for m = ["cc", "corr_cc"]
     for a=1:4
         fprintf("---------------- Threshold n°%d --------------\n", a)
         for b=1:nb_patients
-            %{
-            fprintf("-------------- Threshold = %d -----------\n", t)
-            fprintf("Network density: %12.8f\n", nets(a,b).Density)
-            fprintf("Clustering coefficient: %12.8f\n", nets(a,b).Clustering_coeff)
-            fprintf("Path length: %12.8f\n", nets(a,b).Char_path_length)
-            fprintf("Size of largest component: %12.8f\n", nets(a,b).Size_larg_comp)
-            fprintf("Path length of largest component: %12.8f\n", nets(a,b).Char_path_length_lc)
-            fprintf("Independent components: %12.8f\n", nets(a,b).Nb_ind_comp)
-            fprintf("Small world configuration: %12.8f\n", nets(a,b).Small_world)
-            %}
+
             if b < 21
                params_ep(b,:) = [nets(a,b).Clustering_coeff, ...
                    nets(a,b).Char_path_length, nets(a,b).Size_larg_comp, ...

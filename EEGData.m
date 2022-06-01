@@ -19,8 +19,7 @@ classdef EEGData
             obj.Channels = size(EEG, 2)-3; 
             % Remove ECG, RSO and LIO that are not EEG channels
                 % ECG = electrocardiogramme
-                % RSO and LIO = electro oculogramme (right superior and
-                % left inferior)
+                % RSO and LIO = electro oculogramme (right superior and left inferior)
             obj.Points = size(EEG, 1);
             obj.Sample_frequency = Header.Fs;
             obj.Reference = ref;
@@ -44,6 +43,7 @@ classdef EEGData
             % Remove the mastoids from the number of channels
             obj.Channels = obj.Channels - 2;
          
+            % Re-referencing
             if reref == true
                 disp("reref")
                 disp(obj.Points)
@@ -83,7 +83,7 @@ classdef EEGData
         % OUTPUT: 
         %   eeg object - with associated network parameters
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function obj = process_data(obj, assoc, window_size)
+        function obj = process_data(obj, assoc, window_size, t)
             % STEP 1: PRE PROCESSING
             low_freq = 1;         
             high_freq = 30;
@@ -107,11 +107,11 @@ classdef EEGData
             % STEP 3: NETWORK EDGES
             obj.Network = obj.Network.edges(measure,obj,wind);
 
-            % STEP 4: ADJACENCY MATRIX
-            if assoc == "wPLI"  
-                obj.Network = obj.Network.adjacency_threshold(t);
+            % STEP 4: ADJACENCY MATRIX 
+            if assoc == "cc" && t == 0.05
+                obj.Network = obj.Network.adjacency_p_val(2*measure.Max_lag+1, t);
             else
-                obj.Network = obj.Network.adjacency_p_val(101, 0.05);
+                obj.Network = obj.Network.adjacency_threshold(t);
             end
 
             % STEP 5: PARAMETERS

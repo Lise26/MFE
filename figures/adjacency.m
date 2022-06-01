@@ -8,8 +8,7 @@ overlap = 125;
 reref = true;
 mast = true;
 
-%{
-%%%%%%%%%%%%%%%%%%%%%% (Corrected) cross-correlation %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% Cross-correlation %%%%%%%%%%%%%%%%%%%%%%%%%%
 for j = ["cc", "corr_cc"]
     eeg = EEGData(patient, ref);
     

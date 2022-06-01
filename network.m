@@ -23,27 +23,13 @@ classdef network
         end
 
         function obj = adjacency_threshold(obj, val)
-            obj.Graph = (obj.Edges+obj.Edges') ; %Make it symmetric
+            obj.Graph = (obj.Edges+obj.Edges');
             obj.Graph = threshold_proportional(obj.Graph, val);
-            
-            
-            % Display network
-            netw = zeros(19);
-            netw(1:7,1:7) = obj.Graph(1:7,1:7);
-            netw(1:7,9:19) = obj.Graph(1:7,8:18);
-            netw(9:19,9:19) = obj.Graph(8:18,8:18);
-            ijw = adj2edgeL(triu(netw));        
-            figure();
-            f_PlotEEG_BrainNetwork(19, ijw, 'w_unity');
-            
-            
             obj.Graph(obj.Graph>0)=1;
         end
 
         function obj = adjacency_stat_test(obj,n, q)
             p_values = zeros(obj.Nodes);
-            disp(min(obj.Edges, [], "all"))
-            disp(max(obj.Edges, [], "all"))
             a = sqrt(2*log(n));
             b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
             for i=1:obj.Nodes
@@ -55,37 +41,26 @@ classdef network
             m = obj.Nodes*(obj.Nodes-1)/2;
             [sorted, ~] = sort(reshape(p_values.',1,[]));
             sorted(1:tot-m) = [];
+            k = 0;
             for i=1:m
                 if sorted(i) > (q/m)*i
                     k = i-1;
                     break
-                else
-                    if i == m
-                        k = i;
-                    end
                 end
             end
             if k == 0
-                k = 1;
+                disp("No reasonable value found for k")
+            else
+                val = sorted(k);
+                obj.Graph = p_values;
+                obj.Graph(obj.Graph>val)=0;
+                obj.Graph(obj.Graph~=0)=1;
+                obj.Graph = (obj.Graph+obj.Graph');
             end
-            disp(k)
-            val = sorted(k);
-            disp("Confidence in the network (number of false positives - percentage)")
-            disp(q*k)
-            obj.Graph = p_values;
-            obj.Graph(obj.Graph>val)=0;
-
-            obj.Graph(obj.Graph~=0)=1;
-            disp(sum(obj.Graph, 'all'))
-            obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
         end
 
         function obj = adjacency_p_val(obj,n,t)
             p_values = zeros(obj.Nodes);
-            temp = obj.Edges;
-            temp(temp==0) = 100;
-            disp(min(temp, [], "all"))
-            disp(max(obj.Edges, [], "all"))
             a = sqrt(2*log(n));
             b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
             for i=1:obj.Nodes
@@ -95,25 +70,12 @@ classdef network
             end
             obj.Graph = p_values;
             obj.Graph(obj.Graph>t)=0;
-
-            %{
-             % Display network
-            netw = zeros(19);
-            netw(1:7,1:7) = obj.Graph(1:7,1:7);
-            netw(1:7,9:19) = obj.Graph(1:7,8:18);
-            netw(9:19,9:19) = obj.Graph(8:18,8:18);
-            ijw = adj2edgeL(triu(netw));        
-            figure();
-            f_PlotEEG_BrainNetwork(19, ijw, 'w_intact');
-            %}
-
             obj.Graph(obj.Graph~=0)=1;
-            disp(sum(obj.Graph, 'all'))
-            obj.Graph = (obj.Graph+obj.Graph') ; %Make it symmetric
+            obj.Graph = (obj.Graph+obj.Graph');
         end
 
         function obj = parameters(obj, component)
-
+            % Null network
             if sum(obj.Graph, 'all') == 0
                 obj.Density = 0;
                 obj.Clustering_coeff = 0;
@@ -123,7 +85,6 @@ classdef network
                 obj.Nb_ind_comp = 0;
                 obj.Small_world = 0;
             else
-
                 % Density
                 obj.Density = density_und(obj.Graph); 
     
@@ -132,7 +93,6 @@ classdef network
                 obj.Clustering_coeff = mean(clustering_coef_bu(obj.Graph),'all');
                 
                 % Characteristic path length
-                % Do not consider infinitly long paths
                 dist_mat = distance_bin(obj.Graph);
                 obj.Char_path_length = charpath(dist_mat, 0, 0);
             
@@ -150,6 +110,7 @@ classdef network
                 
                 % Characteristic path length of the largest component
                 % Build the network of the largest component only
+                % and extract path length
                 largest_comp = find(comp_size==obj.Size_larg_comp);
                 nodes_lc = find(components==largest_comp(1));
                 init = uint32(1):uint32(obj.Nodes);
@@ -166,7 +127,6 @@ classdef network
                     obj.Char_path_length_lc = comp.Char_path_length;
                 end
             end
-
         end
     end
 end

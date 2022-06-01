@@ -2,17 +2,14 @@ clearvars; clc; close all;
 
 nb_patients = 40;
 nb_params = 7;
-window_size = 250;
-if window_size == 250
-    nb_windows = 1799;
-else
-    nb_windows = 92;
-end
+m = "cc";
 
-%for m = ["cc", "corr_cc", "wPLI"]
-for m = ["cc", "corr_cc"]
-window_size = 250;
-    %m = "cc";
+for window_size = [250, 2500]
+    if window_size == 250
+        nb_windows = 1799;
+    else
+        nb_windows = 92;
+    end
     params_ep = zeros(nb_patients/2, nb_params);
     params_h = zeros(nb_patients/2, nb_params);
     w_params_ep = zeros(nb_patients/2, nb_params, nb_windows);
@@ -25,20 +22,8 @@ window_size = 250;
             file = "Files/" + i + "/";
         end
         eeg = EEGData(file, 8);
-        eeg = eeg.process_data(m, window_size);
+        eeg = eeg.process_data(m, window_size, 0.05);
         param = eeg.Network;
-    
-        % Average values for the parameters
-        %{
-        fprintf("------- Parameters for patient n° %d\n", i);
-        fprintf("Network density: %12.8f\n", param.Density)
-        fprintf("Clustering coefficient: %12.8f\n", param.Clustering_coeff)
-        fprintf("Path length: %12.8f\n", param.Char_path_length)
-        fprintf("Size of largest component: %12.8f\n", param.Size_larg_comp)
-        fprintf("Path length of largest component: %12.8f\n", param.Char_path_length_lc)
-        fprintf("Independent components: %12.8f\n", param.Nb_ind_comp)
-        fprintf("Small world configuration: %12.8f\n", param.Small_world)
-        %}
     
         % Keep the patient's parameters in memory
         if i < 21
@@ -64,7 +49,7 @@ window_size = 250;
     small_world = horzcat(params_ep(:,7), params_h(:,7));
 
     dens = vertcat(density(:,1), density(:,2));
-    x = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
+    x = 1:40;
     figure();
     bar(dens)
     xlabel("Patients (number)")
