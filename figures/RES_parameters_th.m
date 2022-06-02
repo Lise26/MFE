@@ -2,7 +2,7 @@ clearvars; clc; close all;
 
 nb_patients = 40;
 nb_params = 6;
-window_size = 250;
+window_size = 2500;
 if window_size == 250
     nb_windows = 1799;
 else
@@ -43,6 +43,7 @@ for m = "wPLI"
         eeg.Network = network(eeg.Channels);
         eeg.Network = eeg.Network.edges(measure,eeg,wind);
     
+        % APPLY THE VARIOUS THRESHOLDS
         it = 1;
         for t=0.2:0.05:0.35
             eeg.Network = eeg.Network.adjacency_threshold(t);
@@ -63,7 +64,6 @@ for m = "wPLI"
     
     nets = vertcat(nets1,nets2,nets3,nets4);
     
-    comp = zeros(6,nb_params*2);
     for a=1:4
         fprintf("---------------- Threshold n°%d --------------\n", a)
         for b=1:nb_patients
@@ -88,59 +88,42 @@ for m = "wPLI"
         charlc = horzcat(params_ep(:,4), params_h(:,4));
         nbcomp = horzcat(params_ep(:,5), params_h(:,5));
         small_world = horzcat(params_ep(:,6), params_h(:,6));
-        
+
         x = 1:2;
         figure();
         subplot(3,2,1)
-        plot(x, cluster, "x")
+        plot(x, cluster, "*")
         title("Mean Clustering Coefficient")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         subplot(3,2,2)
         plot(x,char,'*')
         title("Characteristic Path Length")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         subplot(3,2,3)
         plot(x,sizlc,'*')
         title("Size of the Largest Component")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         subplot(3,2,4)
         plot(x,charlc,'*')
         title("Characteristic Path Length of the Largest Component")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         subplot(3,2,5)
         plot(x,nbcomp,'*')
         title("Number of components")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         subplot(3,2,6)
         plot(x,small_world,'*')
         title("Small-world configuration")
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         xlim([0 3])
         set(gcf, 'units','normalized','outerposition',[0 0 1 1])
     
-        mean_cc_ep = mean(params_ep(:,1));
-        mean_cc_h = mean(params_h(:,1));
-        mean_char_ep = mean(params_ep(:,2));
-        mean_char_h = mean(params_h(:,2));
-        mean_sizlc_ep = mean(params_ep(:,3));
-        mean_sizlc_h = mean(params_h(:,3));
-        mean_charlc_ep = mean(params_ep(:,4));
-        mean_charlc_h = mean(params_h(:,4));
-        mean_nbcomp_ep = mean(params_ep(:,5));
-        mean_nbcomp_h = mean(params_h(:,5));
-        mean_small_world_ep = mean(params_ep(:,6));
-        mean_small_world_h = mean(params_h(:,6));
-        
-        comp(a,:) = [mean_cc_ep, mean_cc_h, mean_char_ep, mean_char_h, ...
-            mean_sizlc_ep, mean_sizlc_h, mean_charlc_ep, mean_charlc_h, ...
-            mean_nbcomp_ep, mean_nbcomp_h, mean_small_world_ep, ...
-            mean_small_world_h];
-        
+        p = zeros(nb_params,1);
         for i=1:nb_params
             fprintf("------- Statistical test for parameter n° %d\n", i);
             h1 = kstest(params_ep(:,i));
@@ -151,12 +134,17 @@ for m = "wPLI"
                 disp(h_d)
                 disp(p_d)
             else
+                disp("Not normally distributed samples")
+                p(i) = ranksum(params_ep(:,i),params_h(:,i));
+                disp(p)
+                %{
                 vec_Wtest = zeros(40,2);
                 vec_w(1:20,1) = params_ep(:,i);
                 vec_w(21:40,1) = params_h(:,i);
                 vec_w(1:20,2) = ones(20,1);
                 vec_w(21:40,2) = 2.*ones(20,1);
                 Wtest(vec_w);
+                %}
             end
         end
         
@@ -164,66 +152,33 @@ for m = "wPLI"
         subplot(3,2,1)
         boxplot(cluster)
         ylabel('Mean Clustering Coefficient')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(1))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         subplot(3,2,2)
         boxplot(char)
         ylabel('Characteristic Path Length')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(2))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         subplot(3,2,3)
         boxplot(sizlc)
         ylabel('Size of the Largest Component')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(3))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         subplot(3,2,4)
         boxplot(charlc)
         ylabel('Characteristic Path Length of the Largest Component')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(4))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         subplot(3,2,5)
         boxplot(nbcomp)
         ylabel('Number of Components')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(5))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         subplot(3,2,6)
         boxplot(small_world)
         ylabel('Small-world configuration')
-        set(gca,'XTick',1:2,'XTickLabel',outcome)
+        title("P = %.4f", p(6))
+        set(gca,"FontSize",12,'XTick',1:2,'XTickLabel',outcome)
         set(gcf, 'units','normalized','outerposition',[0 0 1 1])
     end
-    
-    figure();
-    subplot(3,2,1)
-    plot(x, comp(:,1:2), "*")
-    title("Mean Clustering Coefficient")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    subplot(3,2,2)
-    plot(x,comp(:,3:4),'*')
-    title("Characteristic Path Length")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    subplot(3,2,3)
-    plot(x,comp(:,5:6),'*')
-    title("Size of the Largest Component")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    subplot(3,2,4)
-    plot(x,comp(:,7:8),'*')
-    title("Characteristic Path Length of the Largest Component")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    subplot(3,2,5)
-    plot(x,comp(:,9:10),'*')
-    title("Number of components")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    subplot(3,2,6)
-    plot(x,comp(:,11:12),'*')
-    title("Small-world configuration")
-    set(gca,'XTick',1:2,'XTickLabel',outcome)
-    legend("Threshold = 15%", "Threshold = 20%", "Threshold = 25%", "Threshold = 30%", "Threshold = 35%", "Threshold = 40%")
-    xlim([0 3])
-    set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 end

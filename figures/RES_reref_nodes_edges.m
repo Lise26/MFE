@@ -1,3 +1,6 @@
+% Code to generate illustrations of steps 1 to 3 (pre-processing, network
+% nodes and edges) on patient n°1 - CHAPTER: RESULTS
+
 clearvars; clc; close all;
 
 % Parameters
@@ -10,8 +13,8 @@ mastoids = false;
 length_window = 2500;
 overlap = 125;
 
-%for m = ["cc", "corr_cc", "wPLI"]
-for m = "corr_cc"
+% Processing
+for m = ["cc", "corr_cc", "wPLI"]
     for r=1:3
         eeg = EEGData(patient, ref);
         % Re-referencing to common average
@@ -38,15 +41,16 @@ for m = "corr_cc"
     
         net = net.edges(measure,eeg,wind);
     
+        % Display network
+        % adds column and row of zeros for channel 8, to account for the
+        % zero voltage initial reference
         netw = zeros(19);
         netw(1:7,1:7) = net.Edges(1:7,1:7);
         netw(1:7,9:19) = net.Edges(1:7,8:18);
         netw(9:19,9:19) = net.Edges(8:18,8:18);
-        netw = (netw+netw');
         aij = threshold_proportional(netw, 0.5);
         ijw = adj2edgeL(triu(aij));        
-        
-        % Display network
+
         figure();
         f_PlotEEG_BrainNetwork(19, ijw, 'w_intact');
     end

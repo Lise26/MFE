@@ -1,3 +1,6 @@
+% Code to generate illustrations of the network parameters and statistical
+% tests - CHAPTER: RESULTS
+
 clearvars; clc; close all;
 
 nb_patients = 40;
@@ -47,16 +50,6 @@ for window_size = [250, 2500]
     charlc = horzcat(params_ep(:,5), params_h(:,5));
     nbcomp = horzcat(params_ep(:,6), params_h(:,6));
     small_world = horzcat(params_ep(:,7), params_h(:,7));
-
-    dens = vertcat(density(:,1), density(:,2));
-    x = 1:40;
-    figure();
-    bar(dens)
-    xlabel("Patients (number)")
-    ylabel("Density")
-    title("Network densities for patients")
-    set(gca,'XTick',x);
-    set(gcf, 'units','normalized','outerposition',[0 0 1 1])
     
     x = 1:2;
     figure();

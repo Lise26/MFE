@@ -83,7 +83,7 @@ classdef EEGData
         %       REM: put the best one by default
         %
         % OUTPUT: 
-        %   eeg object - with associated network parameters
+        %   eeg object - with associated network and parameters
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function obj = process_data(obj, assoc, window_size, t)
             % STEP 1: PRE PROCESSING

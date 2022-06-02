@@ -28,7 +28,7 @@ classdef network
             obj.Graph(obj.Graph>0)=1;
         end
 
-        function obj = adjacency_stat_test(obj,n, q)
+        function obj = adjacency_stat_test(obj, n, q)
             p_values = zeros(obj.Nodes);
             a = sqrt(2*log(n));
             b = a - (2*a)^(-1)*(log(log(n))+log(4*pi));
