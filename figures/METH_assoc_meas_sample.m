@@ -1,11 +1,15 @@
+% Code to generate illustrations of the association measures on sample
+% vectors - CHAPTER: METHOD
+
 clearvars; clc; close all;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% SAMPLE SIGNALS %%%%%%%%%%%%%%%%%%%%%%%%%%
-% Creation of sample signals
 Fs = 250;
-f=1/Fs;
-t=0:f:2;
+Ts = 1/Fs;
+L = 500;
+t = (0:L-1)*Ts;
 
+% For the cross-correlation & corrected version
 % In phase
 x1=sin(2*pi*10*t);
 y1=sin(2*pi*10*t);
@@ -16,56 +20,65 @@ y3=sin(2*pi*10*t);
 x2=sin(-2*pi*10*t);
 y2=sin(2*pi*10*t);
 % Random
-x4=rand(1,501);
-y4=rand(1,501);
+x4=rand(1,500);
+y4=rand(1,500);
 
+% Display of the sample signals
 figure;
-times = (0:500);
 subplot(411)
-plot(times,x1);
+plot(t,x1);
 hold();
-plot(times,y1);
+plot(t,y1);
 xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('In phase signals');
 subplot(412)
-plot(times,x3);
+plot(t,x3);
 hold();
-plot(times,y3);
+plot(t,y3);
 xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Dephased signals');
 subplot(413)
-plot(times,x2);
+plot(t,x2);
 hold();
-plot(times,y2);
+plot(t,y2);
 xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Opposite-phase signals');
 subplot(414)
-plot(times,x4);
+plot(t,x4);
 hold();
-plot(times,y4);
+plot(t,y4);
 xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Random signals');
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
-% Creation of a window containing the sample signals
+% For the wPLI
+% Fixed phase difference between the two signals
+L = 7500;
+t = (0:L-1)*Ts;
+phi_t = pi():-pi()/100:-pi();
+x = cos(2*pi*30*t); 
+y(:,:) = cos(2*pi*30*t+phi_t(:));
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WINDOWS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Creation of a windows to compute the association measures
 wind = window(Fs, 0);
-dat = horzcat(x1.',y1.',x2.',y2.',x3.',y3.',x4.',y4.');
+
 
 %%%%%%%%%%%%%%%%%%%%%%%% CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%%%%%%
-% Computation of the cross-correlation
 cross = crossCorrelation();
-cross_corr_dat1 = cross.association(wind,dat(:,1),dat(:,2));
-cross_corr_dat3 = cross.association(wind,dat(:,5),dat(:,6));
-cross_corr_dat2 = cross.association(wind,dat(:,3),dat(:,4));
-cross_corr_dat4 = cross.association(wind,dat(:,7),dat(:,8));
+cross_corr_dat1 = cross.association(wind,x1,y1);
+cross_corr_dat2 = cross.association(wind,x2,y2);
+cross_corr_dat3 = cross.association(wind,x3,y3);
+cross_corr_dat4 = cross.association(wind,x4,y4);
 
 lag = -cross.Max_lag:cross.Max_lag;
 figure;
@@ -88,15 +101,14 @@ title('Cross-correlation of random signals')
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
 % Computation of the Fisher Transform of the cross-correlation
-cross_corr_dat1 = cross.FTmeasure(wind,dat(:,1),dat(:,2));
-cross_corr_dat3 = cross.FTmeasure(wind,dat(:,5),dat(:,6));
-cross_corr_dat2 = cross.FTmeasure(wind,dat(:,3),dat(:,4));
-cross_corr_dat4 = cross.FTmeasure(wind,dat(:,7),dat(:,8));
+cross_corr_dat1 = cross.FTmeasure(wind,x1,y1);
+cross_corr_dat2 = cross.FTmeasure(wind,x2,y2);
+cross_corr_dat3 = cross.FTmeasure(wind,x3,y3);
+cross_corr_dat4 = cross.FTmeasure(wind,x4,y4);
 
-lag = -cross.Max_lag:cross.Max_lag;
 figure;
 subplot(411)
-plot(lag, cross_corr_dat1)
+plot(lag, real(cross_corr_dat1))
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for in-phase signals')
 subplot(412)
@@ -104,7 +116,7 @@ plot(lag, cross_corr_dat3)
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for dephased signals')
 subplot(413)
-plot(lag, cross_corr_dat2)
+plot(lag, real(cross_corr_dat2))
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for opposite-phase signals')
 subplot(414)
@@ -113,14 +125,13 @@ ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for random signals')
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
 
-%%%%%%%%%%%%%%%%%%% CORRECTED CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%
 
-% Computation of the corrected cross-correlation
+%%%%%%%%%%%%%%%%%%% CORRECTED CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%
 corr = correctedCrossCorrelation();
-corr_cross_corr_dat1 = corr.association(wind,dat(:,1),dat(:,2));
-corr_cross_corr_dat2 = corr.association(wind,dat(:,3),dat(:,4));
-corr_cross_corr_dat3 = corr.association(wind,dat(:,5),dat(:,6));
-corr_cross_corr_dat4 = corr.association(wind,dat(:,7),dat(:,8));
+corr_cross_corr_dat1 = corr.association(wind,x1,y1);
+corr_cross_corr_dat2 = corr.association(wind,x2,y2);
+corr_cross_corr_dat3 = corr.association(wind,x3,y3);
+corr_cross_corr_dat4 = corr.association(wind,x4,y4);
 
 lag = 1:cross.Max_lag;
 figure;
@@ -140,4 +151,21 @@ subplot(414)
 plot(lag, corr_cross_corr_dat4.Value)
 ylabel('Corrected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of random signals')
+set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WPLI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+wpli = wPLI();
+wpli.Num_window = floor(length(x)/(wind.Length-wind.Overlap)) - 1;
+res = zeros(5,length(phi_t)); 
+for p=1:length(phi_t)
+    res(:,p) = wpli.measure(wind, x.', y(p,:).');
+end
+
+phi_t=-phi_t ; 
+phi = {'-\pi','-3\pi/4','-\pi/2','-\pi/4','0','\pi/4','\pi/2','3\pi/4','\pi'};
+figure; 
+plot(phi_t,squeeze(res(4,:)),'-blue','LineWidth',1.5);
+set(gca,'xlim',[-pi() pi()],'xtick',-pi():pi()/4:pi(),'xticklabel', phi); 
+title('wPLI of sample signals for different fixed phase differences');
 set(gcf, 'units','normalized','outerposition',[0 0 1 1])
