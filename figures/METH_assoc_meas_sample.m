@@ -33,6 +33,7 @@ xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('In phase signals');
+set(gca,"FontSize",18)
 subplot(412)
 plot(t,x3);
 hold();
@@ -41,6 +42,7 @@ xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Dephased signals');
+set(gca,"FontSize",18)
 subplot(413)
 plot(t,x2);
 hold();
@@ -49,6 +51,7 @@ xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Opposite-phase signals');
+set(gca,"FontSize",18)
 subplot(414)
 plot(t,x4);
 hold();
@@ -57,7 +60,8 @@ xlabel('Time (s)');
 ylabel('x(t), y(t)');
 legend('x', 'y')
 title('Random signals');
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+set(gca,"FontSize",18)
+set(gcf,'units','normalized','outerposition',[0 0 1 1])
 
 % For the wPLI
 % Fixed phase difference between the two signals
@@ -86,19 +90,23 @@ subplot(411)
 plot(lag, cross_corr_dat1.Value)
 ylabel('Cross-correlation'); xlabel('Lag (s)')
 title('Cross-correlation of in-phase signals')
+set(gca,"FontSize",18)
 subplot(412)
 plot(lag, cross_corr_dat3.Value)
 ylabel('Cross-correlation'); xlabel('Lag (s)')
 title('Cross-correlation of dephased signals')
+set(gca,"FontSize",18)
 subplot(413)
 plot(lag, cross_corr_dat2.Value)
 ylabel('Cross-correlation'); xlabel('Lag (s)')
 title('Cross-correlation of opposite-phase signals')
+set(gca,"FontSize",18)
 subplot(414)
 plot(lag, cross_corr_dat4.Value)
 ylabel('Cross-correlation'); xlabel('Lag (s)')
 title('Cross-correlation of random signals')
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+set(gca,"FontSize",18)
+set(gcf,'units','normalized','outerposition',[0 0 1 1])
 
 % Computation of the Fisher Transform of the cross-correlation
 cross_corr_dat1 = cross.FTmeasure(wind,x1,y1);
@@ -111,19 +119,23 @@ subplot(411)
 plot(lag, real(cross_corr_dat1))
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for in-phase signals')
+set(gca,"FontSize",18)
 subplot(412)
 plot(lag, cross_corr_dat3)
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for dephased signals')
+set(gca,"FontSize",18)
 subplot(413)
 plot(lag, real(cross_corr_dat2))
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for opposite-phase signals')
+set(gca,"FontSize",18)
 subplot(414)
 plot(lag, cross_corr_dat4)
 ylabel('Fisher Transform'); xlabel('Lag (s)')
 title('Fisher Transform of the cross-correlation for random signals')
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+set(gca,"FontSize",18)
+set(gcf,'units','normalized','outerposition',[0 0 1 1])
 
 
 %%%%%%%%%%%%%%%%%%% CORRECTED CROSS-CORRELATION %%%%%%%%%%%%%%%%%%%%
@@ -139,19 +151,23 @@ subplot(411)
 plot(lag, corr_cross_corr_dat1.Value)
 ylabel('Corected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of in-phase signals')
+set(gca,"FontSize",18)
 subplot(412)
 plot(lag, corr_cross_corr_dat3.Value)
 ylabel('Corrected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of dephased signals')
+set(gca,"FontSize",18)
 subplot(413)
 plot(lag, corr_cross_corr_dat2.Value)
 ylabel('Corrected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of opposite-phase signals')
+set(gca,"FontSize",18)
 subplot(414)
 plot(lag, corr_cross_corr_dat4.Value)
 ylabel('Corrected cross-correlation'); xlabel('Lag (s)')
 title('Corrected cross-correlation of random signals')
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+set(gca,"FontSize",18)
+set(gcf,'units','normalized','outerposition',[0 0 1 1])
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% WPLI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -168,4 +184,5 @@ figure;
 plot(phi_t,squeeze(res(4,:)),'-blue','LineWidth',1.5);
 set(gca,'xlim',[-pi() pi()],'xtick',-pi():pi()/4:pi(),'xticklabel', phi); 
 title('wPLI of sample signals for different fixed phase differences');
-set(gcf, 'units','normalized','outerposition',[0 0 1 1])
+set(gca,"FontSize",18)
+set(gcf,'units','normalized','outerposition',[0 0 1 1])

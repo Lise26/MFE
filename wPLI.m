@@ -1,3 +1,5 @@
+% wPLI class (herits from associationMeasure)
+
 % Code coming from Ghita Ait Ouhmane's Master Thesis
 % Ait Ouhmane, Ghita. 2022. “Assessing consciousness at the Intensive Care
 % Unit (ICU)." Master s thesis, Université Libre de Bruxelles.

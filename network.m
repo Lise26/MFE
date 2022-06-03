@@ -1,3 +1,6 @@
+% network class
+% Deals with networks, their construction and parameters extraction
+
 classdef network
     properties
       Nodes {mustBeNumeric}
@@ -14,20 +17,24 @@ classdef network
     end
     
     methods
+        % Constructor
         function obj = network(nodes)
             obj.Nodes = nodes;
         end
 
+        % Network edges
         function obj = edges(obj, measure, eeg, window)
             obj.Edges = measure.matrix(eeg,window);
         end
 
+        % Adjacency matrix with simple threshold
         function obj = adjacency_threshold(obj, val)
             obj.Graph = (obj.Edges+obj.Edges');
             obj.Graph = threshold_proportional(obj.Graph, val);
             obj.Graph(obj.Graph>0)=1;
         end
 
+        % Adjacency matrix with statistical test procedure
         function obj = adjacency_stat_test(obj, n, q)
             p_values = zeros(obj.Nodes);
             a = sqrt(2*log(n));
@@ -59,6 +66,7 @@ classdef network
             end
         end
 
+        % Adjacency matrix with threshold on p-values
         function obj = adjacency_p_val(obj,n,t)
             p_values = zeros(obj.Nodes);
             a = sqrt(2*log(n));
@@ -74,6 +82,7 @@ classdef network
             obj.Graph = (obj.Graph+obj.Graph');
         end
 
+        % Network parameters
         function obj = parameters(obj, component)
             % Null network
             if sum(obj.Graph, 'all') == 0

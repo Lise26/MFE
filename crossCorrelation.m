@@ -1,5 +1,9 @@
+% crossCorrelation class (herits from associationMeasure)
+% Computes the cross-correlation and the Fisher Transformation
+
 classdef crossCorrelation < associationMeasure
     methods
+        % Cross-correlation computation
         function obj = association(obj, window, x, y)
             cc = zeros(2*obj.Max_lag+1,1);
             for lag = -obj.Max_lag:obj.Max_lag
@@ -19,6 +23,7 @@ classdef crossCorrelation < associationMeasure
             obj.Value = cc;
         end
         
+        % Fisher Transformation computation
         function FT = FTmeasure(obj,window,x,y)
             res = obj.association(window,x,y);
             FT = zeros(size(res.Value));    
@@ -28,6 +33,8 @@ classdef crossCorrelation < associationMeasure
             end
         end
 
+        % Run the computations for all windows of signal and return the
+        % mean value across windows
         function zF = measure(obj, window, x, y)
             test_stat = zeros(obj.Num_window-2,1);
             for w=2:obj.Num_window-1

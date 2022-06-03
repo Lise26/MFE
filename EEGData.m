@@ -1,4 +1,5 @@
 % EEGData class
+% Deals with the EEG recordings and their analysis
 
 classdef EEGData
     properties
@@ -12,6 +13,7 @@ classdef EEGData
     end
 
     methods
+        % Constructor
         function obj = EEGData(EEG_folder, ref)
             EEG_file = EEG_folder + "EEG.mat";
             EEG_header = EEG_folder + "Header.mat";
@@ -32,6 +34,7 @@ classdef EEGData
             obj.Channels = obj.Channels - 1;
         end
 
+        % Pre-processing on EEG files
         function [obj, wind] = preprocessing(obj, low_freq, high_freq, length_window, overlap, reref, mast)
             % Filter the frequency band between low_freq and high_freq 
             obj.Data = bandpass(obj.Data(:,1:obj.Channels),[low_freq high_freq], obj.Sample_frequency);
@@ -41,14 +44,13 @@ classdef EEGData
             wind = window(length_window, overlap);
         end
 
+        % Re-referencing
         function obj = rereferencing(obj, reref, mastoids)
             % Remove the mastoids from the number of channels
             obj.Channels = obj.Channels - 2;
          
             % Re-referencing
             if reref == true
-                disp("reref")
-                disp(obj.Points)
                 for p=1:obj.Points
                     if mastoids == true
                         % to the average of mastoids
@@ -61,7 +63,6 @@ classdef EEGData
                         obj.Data(p,i) = obj.Data(p,i) - average;
                     end
                 end
-                disp("end")
             end
 
             % Remove the mastoids from the channels
@@ -78,9 +79,10 @@ classdef EEGData
         % EEG = PROCESS_DATA(ASSOC_MEASURE)
         %
         % INPUTS: 
-        %   assoc_measure - choice of association measure between nodes
+        %   assoc - choice of association measure between nodes
         %       can be: "cc", "corr_cc" or "wPLI"
-        %       REM: put the best one by default
+        %   window_size - size of the winodws of signals
+        %   t - threshold to build the adjacency matrix
         %
         % OUTPUT: 
         %   eeg object - with associated network and parameters

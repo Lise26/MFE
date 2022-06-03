@@ -1,3 +1,7 @@
+% associationMeasure class
+% Parent class of all association measures (cross-correlation, corrected
+% cross-correlation and wPLI
+
 classdef associationMeasure
     properties
         Num_window {mustBeNumeric}
@@ -5,7 +9,9 @@ classdef associationMeasure
         Max_lag {mustBeNumeric}
     end
     methods
+        % Constructor
         function obj = associationMeasure()
+            % Initialization of the lag
             obj.Max_lag = 50;
         end
 
@@ -13,6 +19,8 @@ classdef associationMeasure
             obj.Value = 0;
         end
    
+        % Compute the association matrix between all pair of nodes for a
+        % given EEG signal
         function res_matrix = matrix(obj,eeg,window)
             res_matrix = zeros(eeg.Channels);
             obj.Num_window = floor((eeg.Points-window.Length+window.Overlap)/(window.Length-window.Overlap)) - 2;

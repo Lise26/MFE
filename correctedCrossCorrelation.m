@@ -1,5 +1,9 @@
+% correctedCrossCorrelation class (herits from associationMeasure)
+% Computes the corrected cross-correlation
+
 classdef correctedCrossCorrelation < associationMeasure
     methods
+        % Corrected cross-correlation
         function obj = association(obj, window, x, y)
             cross = crossCorrelation();
             cc = cross.association(window, x, y);
@@ -10,6 +14,8 @@ classdef correctedCrossCorrelation < associationMeasure
             obj.Value = corr;
         end
 
+        % Run the computations for all windows of signal and return the
+        % mean value across windows
         function res = measure(obj, window, x, y)
             corr = zeros(obj.Num_window-2,1);
             for w=2:obj.Num_window-1
